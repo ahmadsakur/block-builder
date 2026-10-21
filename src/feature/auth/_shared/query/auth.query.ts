@@ -5,12 +5,14 @@ import {
   changePassword,
   deleteAccount,
   getSession,
+  removeAvatar,
   requestPasswordReset,
   resetPassword,
   signIn,
   signOut,
   signUp,
   updateProfile,
+  uploadAvatar,
 } from "../service/auth.service";
 import type { Session } from "../types/auth.types";
 
@@ -69,4 +71,14 @@ export function useDeleteAccount() {
     mutationFn: deleteAccount,
     onSuccess: () => setSession(null),
   });
+}
+
+export function useUploadAvatar() {
+  const setSession = useSetSession();
+  return useMutation({ mutationFn: uploadAvatar, onSuccess: setSession });
+}
+
+export function useRemoveAvatar() {
+  const setSession = useSetSession();
+  return useMutation({ mutationFn: removeAvatar, onSuccess: setSession });
 }

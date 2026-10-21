@@ -4,6 +4,9 @@ import type { AuthUser } from "../types/auth.types";
 export const AUTH_FALLBACK_ERROR = "Something went wrong. Try again.";
 export const SIGNED_OUT_ERROR = "You're signed out. Sign in again.";
 export const WRONG_CURRENT_PASSWORD = "Your current password is incorrect.";
+export const AVATAR_UPLOAD_FAILED = "Couldn't upload your photo. Try again.";
+export const AVATAR_REMOVE_FAILED =
+  "Couldn't remove your photo files, so your account wasn't deleted. Try again.";
 export const CONFIRM_EMAIL_FIRST =
   "Check your email to confirm your account, then sign in.";
 
@@ -15,6 +18,7 @@ const TOO_MANY = "Too many attempts. Try again in a few minutes.";
 const AUTH_ERROR_COPY: Record<string, string> = {
   bad_code_verifier: RESET_LINK_EXPIRED,
   email_exists: ACCOUNT_EXISTS,
+  email_not_confirmed: "Confirm your email first. The link is in your inbox.",
   flow_state_expired: RESET_LINK_EXPIRED,
   flow_state_not_found: RESET_LINK_EXPIRED,
   invalid_credentials: "That email and password don't match.",

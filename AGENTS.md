@@ -40,7 +40,7 @@ TanStack Query is the data layer and nuqs holds URL state. Every feature reads d
 
 Backend mode: `supabase`. Supabase is the whole backend.
 - Services call the browser client from `@/lib/supabase/client`. `@/lib/supabase/server` is the server client for Server Components and route handlers.
-- Auth is real (Supabase Auth). Data services stay mock until the project has tables.
+- Auth is real (Supabase Auth), and so is Storage for the profile photo (`avatars` bucket, sweep-based orphan cleanup). Data services stay mock until the project has tables.
 - All Supabase configuration lives in git: `supabase/config.toml` and `supabase/migrations/`. Never change a project through the dashboard.
 - Read [`.agents/backend-supabase.md`](.agents/backend-supabase.md) before touching any `service/`, the schema or auth.
 

@@ -1,9 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ReactNode } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import TextField from "@/components/_common/form/text-field";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/_ui/avatar";
 import { Button } from "@/components/_ui/button";
 import { FieldError, FieldGroup } from "@/components/_ui/field";
 import {
@@ -11,10 +11,10 @@ import {
   type ProfileInput,
   profileSchema,
 } from "../../../_shared/types/auth.types";
-import { initials } from "../../logic/profile.logic";
 
 type ProfileFormProps = {
   user: AuthUser;
+  avatar?: ReactNode;
   pending: boolean;
   error?: string;
   onSubmit: (values: ProfileInput) => void;
@@ -22,6 +22,7 @@ type ProfileFormProps = {
 
 export default function ProfileForm({
   user,
+  avatar,
   pending,
   error,
   onSubmit,
@@ -36,10 +37,7 @@ export default function ProfileForm({
     <form noValidate onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup>
         <div className="flex items-center gap-4">
-          <Avatar className="size-14 text-lg">
-            {user.avatarUrl && <AvatarImage src={user.avatarUrl} alt="" />}
-            <AvatarFallback>{initials(name)}</AvatarFallback>
-          </Avatar>
+          {avatar}
           <div className="flex min-w-0 flex-col">
             <span className="truncate font-medium">{name || user.name}</span>
             <span className="text-muted-foreground truncate text-sm">

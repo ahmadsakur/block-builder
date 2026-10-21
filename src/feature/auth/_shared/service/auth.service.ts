@@ -1,7 +1,10 @@
 import type { User } from "@supabase/supabase-js";
 import { env } from "@/env";
+import { squareImage } from "@/lib/image";
 import { createClient } from "@/lib/supabase/client";
 import {
+  AVATAR_REMOVE_FAILED,
+  AVATAR_UPLOAD_FAILED,
   authErrorMessage,
   CONFIRM_EMAIL_FIRST,
   SIGNED_OUT_ERROR,
@@ -18,6 +21,12 @@ import type {
 } from "../types/auth.types";
 
 type AuthFailure = { code?: string; message?: string } | null;
+type SupabaseClient = ReturnType<typeof createClient>;
+
+const AVATAR_BUCKET = "avatars";
+const AVATAR_SIZE_PX = 256;
+const AVATAR_CACHE_SECONDS = "31536000";
+const MAX_LISTED_FILES = 1000;
 
 function check(error: AuthFailure): asserts error is null {
   if (error) throw new Error(authErrorMessage(error));
@@ -128,9 +137,69 @@ export async function changePassword({
   check(update.error);
 }
 
-export async function deleteAccount(): Promise<void> {
-  await currentUser();
+async function sweepAvatars(
+  supabase: SupabaseClient,
+  userId: string,
+  keep?: string,
+): Promise<boolean> {
+  const bucket = supabase.storage.from(AVATAR_BUCKET);
+  const { data, error } = await bucket.list(userId, {
+    limit: MAX_LISTED_FILES,
+  });
+  if (error) return false;
+  const stale = data
+    .map((file) => `${userId}/${file.name}`)
+    .filter((path) => path !== keep);
+  if (stale.length === 0) return true;
+  const removed = await bucket.remove(stale);
+  return !removed.error;
+}
+
+export async function uploadAvatar(file: Blob): Promise<Session> {
+  const user = await currentUser();
   const supabase = createClient();
+  const bucket = supabase.storage.from(AVATAR_BUCKET);
+  const image = await squareImage(file, AVATAR_SIZE_PX);
+  const path = `${user.id}/${crypto.randomUUID()}.webp`;
+
+  const upload = await bucket.upload(path, image, {
+    cacheControl: AVATAR_CACHE_SECONDS,
+    contentType: "image/webp",
+  });
+  if (upload.error) throw new Error(AVATAR_UPLOAD_FAILED);
+
+  const {
+    data: { publicUrl },
+  } = bucket.getPublicUrl(path);
+  const { data, error } = await supabase.auth.updateUser({
+    data: { avatar_url: publicUrl },
+  });
+  if (error) {
+    await bucket.remove([path]);
+    throw new Error(authErrorMessage(error));
+  }
+
+  await sweepAvatars(supabase, user.id, path);
+  return toSession(data.user);
+}
+
+export async function removeAvatar(): Promise<Session> {
+  const user = await currentUser();
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.updateUser({
+    data: { avatar_url: null },
+  });
+  check(error);
+  await sweepAvatars(supabase, user.id);
+  return toSession(data.user);
+}
+
+export async function deleteAccount(): Promise<void> {
+  const user = await currentUser();
+  const supabase = createClient();
+  if (!(await sweepAvatars(supabase, user.id))) {
+    throw new Error(AVATAR_REMOVE_FAILED);
+  }
   const { error } = await supabase.rpc("delete_own_account");
   check(error);
   await supabase.auth.signOut({ scope: "local" });

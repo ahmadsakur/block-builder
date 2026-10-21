@@ -75,25 +75,86 @@ Every setting that the Supabase dashboard can change lives in git and is pushed 
 - **Config** (`supabase/config.toml`): `site_url` is `http://localhost:3000`, the reset
   URL is allow-listed, minimum password length is 8 (matches our zod schema), and email
   confirmation is off.
+- **Storage**: `avatars` bucket and profile photo upload. See "Storage" below.
 - **Data services are still mock** (customers, notifications, home).
 - **Theme**: primary, ring, sidebar-primary and the chart scale use Supabase green
   tokens in `globals.css`.
+
+## Storage: profile photo (reference pattern)
+
+The profile page uploads a photo. Copy this pattern for any per-user file.
+
+- **Bucket and access rules live in a migration** (`*_avatars_bucket.sql`), not
+  `config.toml`.
+  - `insert into storage.buckets … on conflict do update` sets `avatars`: public, 1 MB
+    limit, `image/webp|png|jpeg`.
+  - Policies on `storage.objects` let `authenticated` users select, insert, update and
+    delete only objects whose first folder is their `auth.uid()`.
+  - Public read goes through the public URL, so no policy is needed for it. The select
+    policy is still required for `list()` and `remove()`.
+  - (`[storage.buckets]` in `config.toml` only seeds buckets with `supabase seed buckets`.
+    A migration keeps the bucket and its rules together and ships with `db push`.)
+- **Client-side processing**: `squareImage()` in `lib/image.ts` center-crops to a square
+  and re-encodes to 256 px WebP (~20 KB) before upload. That needs no paid image
+  transformations, and the 1 MB bucket limit becomes a backstop. Validation (PNG, JPEG or
+  WebP, ≤ 5 MB before processing) is in `profile.logic.ts`.
+- **Paths**: `<uid>/<random uuid>.webp`, a new name per upload, so the URL changes and
+  browser/CDN caches never show a stale photo. `cacheControl` is one year.
+- **Orphans**, in `auth.service.ts`:
+  - upload succeeds but saving `avatar_url` fails → the new file is removed right away
+  - after a successful change → `sweepAvatars` lists `<uid>/` and removes everything
+    except the new file (the previous photo, plus leftovers from any interrupted
+    attempt)
+  - Remove photo → `avatar_url = null`, then sweep the whole folder
+  - Delete account → sweep first. If that fails, the account is **not** deleted, so files
+    are never orphaned without an owner. Deleting rows from `storage.objects` with SQL
+    leaves the files in storage, so it must go through the Storage API.
+- **UX** (`avatar-picker.tsx`, passed into `ProfileForm` as its `avatar` slot):
+  - the avatar in Personal info is the control: hover or focus shows a pencil, click
+    opens the file picker
+  - while uploading, a local preview shows under a spinner
+  - a small × in the corner removes the photo (only when one exists)
+  - validation and server errors show as `toast.error`, success as `toast.success`
+  - the session cache updates, so the sidebar user menu changes too
+- **Check from the CLI**:
+  `pnpm exec supabase storage ls ss:///avatars/<uid>/ --linked --experimental`
 
 ## Day 1 of a real project (the "one step")
 
 From a clean clone of the `supabase` branch:
 
 ```bash
-pnpm exec supabase login                       # browser; in CI use a scoped SUPABASE_ACCESS_TOKEN
-pnpm exec supabase projects create <name>      # or reuse an existing project ref
+pnpm exec supabase login                       # needs a real terminal (not Claude's `!`): browser flow
+pnpm exec supabase orgs list
+pnpm exec supabase projects create <name> --org-id <org> --region <region> --db-password <generated>
 pnpm db:link --project-ref <ref>
-pnpm exec supabase projects api-keys --project-ref <ref>   # copy URL + publishable key
-cp .env.example .env.local                     # fill NEXT_PUBLIC_SUPABASE_* and NEXT_PUBLIC_APP_URL
-pnpm db:push                                   # apply migrations
+pnpm exec supabase projects api-keys --project-ref <ref>   # take the "publishable" key only
+cp .env.example .env.local                     # fill NEXT_PUBLIC_SUPABASE_*, NEXT_PUBLIC_APP_URL, SUPABASE_DB_PASSWORD
+pnpm db:push                                   # apply migrations (reads SUPABASE_DB_PASSWORD)
+pnpm exec supabase config diff                 # must show only intended changes
 pnpm db:config                                 # apply config.toml (auth settings)
+pnpm exec supabase config diff                 # expect "clean"
+pnpm exec supabase db advisors --linked        # security/perf advisors
 pnpm db:types                                  # regenerate database.types.ts
 pnpm dev
 ```
+
+Lessons from the first run (2026-10-21, smoke project `bp-boilerplate-smoke`):
+
+- **Always `config diff` before `config push`.** `config push` sends the whole file, so
+  any local default that differs from the hosted one gets changed.
+  - `config.toml` here is already aligned with hosted defaults: MFA TOTP on, pooler
+    15/200, email `max_frequency` 1m, OTP length 8, storage analytics/vector off
+    (paid-plan features).
+  - Re-check after CLI upgrades, since `supabase init` defaults change.
+- **Push auth config before the first sign-up.** Hosted projects start with email
+  confirmation on. If it's still on, sign-up shows "Check your email…".
+  - An account that signed up while confirmation was on can sign in once it's turned off.
+- **The default email sender only delivers to members of the project's organization**
+  and is rate-limited. Test the reset and confirm emails with your own Supabase account
+  email.
+- **Advisors**: the only warning on a fresh project is "Leaked password protection
+  disabled". That's a paid-plan feature; turn it on in production (see below).
 
 Before `db:config` on a deployed project, set `site_url` and `additional_redirect_urls` in
 `config.toml` to the production URL (keep localhost entries for dev), and set
@@ -114,7 +175,9 @@ Then smoke-test:
 - [ ] **SMTP**: the default email sender is rate-limited and, on the free tier, can't use
       custom templates. Configure `[auth.email.smtp]` in `config.toml` with
       `env(SMTP_PASS)`-style secrets.
-- [ ] **Password rules**: `password_requirements` and `secure_password_change`.
+- [ ] **Password rules**: `password_requirements` and `secure_password_change`. On a paid
+      plan, enable leaked password protection (HaveIBeenPwned check), so the advisors
+      come back clean.
 - [ ] **OAuth providers**: `[auth.external.<provider>]` with `env()` secrets. Map
       `avatar_url` from provider metadata (already read by `toAuthUser`).
 
@@ -150,7 +213,5 @@ Use `customers` as the example. `ui/` and `query/` stay untouched.
 
 ## Deferred
 
-- Storage (avatars, uploads): buckets in `config.toml`, policies on `storage.objects` in
-  migrations. Upsert needs INSERT + SELECT + UPDATE.
 - Realtime (for example, live notifications).
 - Server-side data fetching in Server Components with `lib/supabase/server.ts`.

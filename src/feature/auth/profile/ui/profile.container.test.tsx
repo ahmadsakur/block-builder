@@ -16,7 +16,9 @@ vi.mock("../../_shared/service/auth.service", () => ({
   getSession: vi.fn(async () => ({
     user: { email: "jane@acme.com", id: "user-1", name: "Jane Doe" },
   })),
+  removeAvatar: vi.fn(),
   updateProfile: vi.fn(),
+  uploadAvatar: vi.fn(),
 }));
 
 const LOAD_TIMEOUT = { timeout: 3000 };

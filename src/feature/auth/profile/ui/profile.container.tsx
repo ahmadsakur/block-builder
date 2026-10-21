@@ -11,14 +11,18 @@ import { Button, buttonVariants } from "@/components/_ui/button";
 import {
   useChangePassword,
   useDeleteAccount,
+  useRemoveAvatar,
   useSessionQuery,
   useUpdateProfile,
+  useUploadAvatar,
 } from "../../_shared/query/auth.query";
+import { avatarFileError } from "../logic/profile.logic";
 import {
   THEME_PREFERENCES,
   type ThemePreference,
 } from "../types/profile.types";
 import AppearanceSettings from "./components/appearance-settings";
+import AvatarPicker from "./components/avatar-picker";
 import DeleteAccountDialog from "./components/delete-account-dialog";
 import PasswordForm from "./components/password-form";
 import ProfileForm from "./components/profile-form";
@@ -45,6 +49,8 @@ export default function ProfileContainer() {
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
   const deleteAccount = useDeleteAccount();
+  const uploadAvatar = useUploadAvatar();
+  const removeAvatar = useRemoveAvatar();
   const { theme, setTheme } = useTheme();
   const mounted = useMounted();
   const [profileFormKey, setProfileFormKey] = useState(0);
@@ -89,6 +95,18 @@ export default function ProfileContainer() {
     );
   }
 
+  const selectAvatar = (file: File) => {
+    const problem = avatarFileError(file);
+    if (problem) {
+      toast.error(problem);
+      return;
+    }
+    uploadAvatar.mutate(file, {
+      onError: (error) => toast.error(error.message),
+      onSuccess: () => toast.success("Photo updated"),
+    });
+  };
+
   const changeTheme = (next: ThemePreference) => {
     setTheme(next);
     toast.success(`Theme set to ${next}`);
@@ -104,11 +122,26 @@ export default function ProfileContainer() {
       </header>
       <SettingsSection
         title="Personal info"
-        description="Your name and email show on invoices, comments and invites."
+        description="Your photo, name and email show on invoices, comments and invites."
       >
         <ProfileForm
           key={profileFormKey}
           user={user}
+          avatar={
+            <AvatarPicker
+              name={user.name}
+              avatarUrl={user.avatarUrl}
+              uploading={uploadAvatar.isPending}
+              removing={removeAvatar.isPending}
+              onSelect={selectAvatar}
+              onRemove={() =>
+                removeAvatar.mutate(undefined, {
+                  onError: (error) => toast.error(error.message),
+                  onSuccess: () => toast.success("Photo removed"),
+                })
+              }
+            />
+          }
           pending={updateProfile.isPending}
           error={updateProfile.error?.message}
           onSubmit={(values) =>
