@@ -1,7 +1,14 @@
-import { delay } from "@/lib/delay";
-import { DEMO_USER, TAKEN_EMAIL, WRONG_PASSWORD } from "../data/auth.data";
+import type { User } from "@supabase/supabase-js";
+import { env } from "@/env";
+import { createClient } from "@/lib/supabase/client";
+import {
+  authErrorMessage,
+  CONFIRM_EMAIL_FIRST,
+  SIGNED_OUT_ERROR,
+  toAuthUser,
+  WRONG_CURRENT_PASSWORD,
+} from "../logic/auth.logic";
 import type {
-  AuthUser,
   ChangePasswordInput,
   ForgotPasswordInput,
   ProfileInput,
@@ -10,81 +17,121 @@ import type {
   SignUpInput,
 } from "../types/auth.types";
 
-const MOCK_LATENCY_MS = 700;
+type AuthFailure = { code?: string; message?: string } | null;
 
-let session: Session | null = { user: DEMO_USER };
+function check(error: AuthFailure): asserts error is null {
+  if (error) throw new Error(authErrorMessage(error));
+}
+
+function toSession(user: User): Session {
+  return { user: toAuthUser(user) };
+}
+
+async function currentUser(): Promise<User> {
+  const { data } = await createClient().auth.getUser();
+  if (!data.user) throw new Error(SIGNED_OUT_ERROR);
+  return data.user;
+}
 
 export async function getSession(): Promise<Session | null> {
-  await delay(MOCK_LATENCY_MS);
-  return session;
+  const { data } = await createClient().auth.getUser();
+  return data.user ? toSession(data.user) : null;
 }
 
 export async function signIn({
   email,
   password,
 }: SignInInput): Promise<Session> {
-  await delay(MOCK_LATENCY_MS);
-  if (password === WRONG_PASSWORD) {
-    throw new Error("That email and password don't match.");
-  }
-  session = { user: { ...DEMO_USER, email } };
-  return session;
+  const { data, error } = await createClient().auth.signInWithPassword({
+    email,
+    password,
+  });
+  check(error);
+  return toSession(data.user);
 }
 
-export async function signUp({ name, email }: SignUpInput): Promise<Session> {
-  await delay(MOCK_LATENCY_MS);
-  if (email === TAKEN_EMAIL) {
-    throw new Error("An account with this email already exists.");
-  }
-  session = { user: { email, id: `user-${email}`, name } };
-  return session;
+export async function signUp({
+  name,
+  email,
+  password,
+}: SignUpInput): Promise<Session> {
+  const { data, error } = await createClient().auth.signUp({
+    email,
+    options: { data: { name } },
+    password,
+  });
+  check(error);
+  if (!data.user || !data.session) throw new Error(CONFIRM_EMAIL_FIRST);
+  return toSession(data.user);
 }
 
-export async function requestPasswordReset(
-  _input: ForgotPasswordInput,
-): Promise<void> {
-  await delay(MOCK_LATENCY_MS);
+export async function requestPasswordReset({
+  email,
+}: ForgotPasswordInput): Promise<void> {
+  const { error } = await createClient().auth.resetPasswordForEmail(email, {
+    redirectTo: `${env.NEXT_PUBLIC_APP_URL}/reset-password`,
+  });
+  check(error);
 }
 
-export async function resetPassword(_input: {
+export async function resetPassword({
+  token,
+  password,
+}: {
   token: string;
   password: string;
 }): Promise<void> {
-  await delay(MOCK_LATENCY_MS);
+  const supabase = createClient();
+  const exchange = await supabase.auth.exchangeCodeForSession(token);
+  check(exchange.error);
+  const update = await supabase.auth.updateUser({ password });
+  check(update.error);
+  await supabase.auth.signOut({ scope: "local" });
 }
 
 export async function signOut(): Promise<void> {
-  await delay(MOCK_LATENCY_MS);
-  session = null;
+  const { error } = await createClient().auth.signOut();
+  check(error);
 }
 
-function currentUser(): AuthUser {
-  if (!session) throw new Error("You're signed out. Sign in again.");
-  return session.user;
-}
-
-export async function updateProfile(input: ProfileInput): Promise<Session> {
-  await delay(MOCK_LATENCY_MS);
-  const user = currentUser();
-  if (input.email === TAKEN_EMAIL) {
-    throw new Error("An account with this email already exists.");
-  }
-  session = { user: { ...user, ...input } };
-  return session;
+export async function updateProfile({
+  name,
+  email,
+}: ProfileInput): Promise<Session> {
+  const user = await currentUser();
+  const { data, error } = await createClient().auth.updateUser({
+    data: { name },
+    ...(email === user.email ? {} : { email }),
+  });
+  check(error);
+  return toSession(data.user);
 }
 
 export async function changePassword({
   currentPassword,
+  newPassword,
 }: ChangePasswordInput): Promise<void> {
-  await delay(MOCK_LATENCY_MS);
-  currentUser();
-  if (currentPassword === WRONG_PASSWORD) {
-    throw new Error("Your current password is incorrect.");
+  const user = await currentUser();
+  const supabase = createClient();
+  const { error } = await supabase.auth.signInWithPassword({
+    email: user.email ?? "",
+    password: currentPassword,
+  });
+  if (error) {
+    throw new Error(
+      error.code === "invalid_credentials"
+        ? WRONG_CURRENT_PASSWORD
+        : authErrorMessage(error),
+    );
   }
+  const update = await supabase.auth.updateUser({ password: newPassword });
+  check(update.error);
 }
 
 export async function deleteAccount(): Promise<void> {
-  await delay(MOCK_LATENCY_MS);
-  currentUser();
-  session = null;
+  await currentUser();
+  const supabase = createClient();
+  const { error } = await supabase.rpc("delete_own_account");
+  check(error);
+  await supabase.auth.signOut({ scope: "local" });
 }

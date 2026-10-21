@@ -3,3 +3,5 @@ ignoredBuiltDependencies:
   - lefthook
   - sharp
   - unrs-resolver
+
+shellEmulator: true

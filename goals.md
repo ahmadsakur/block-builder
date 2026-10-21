@@ -64,6 +64,17 @@ Each step = one commit on `base`. Stop after each step, walk the owner through w
 
 Then the backend branches, one at a time. Each starts with the owner giving their detailed recipe for that backend.
 
+## Backend branches
+
+- `vanilla`: HTTP adapter (`/api` fallback rewrite to `API_URL`, `lib/api.ts`). See that branch.
+- ✅ `supabase` (2026-10-21): built without a project (typecheck, tests, build only). It has:
+  - the `@supabase/ssr` clients and `proxy.ts` session refresh and redirects
+  - the auth service on Supabase Auth, with a PKCE reset link adapted to the `?token=` page
+  - the `supabase/` folder: `config.toml` plus a `delete_own_account` migration
+  - `db:*` scripts and Supabase-green tokens
+  Data services stay mock. Next step: smoke-test the day-1 checklist in `.agents/backend-supabase.md` on a throwaway project. The repo is the source of truth, never the dashboard.
+- `payload`: not started.
+
 ## Deferred — do not decide alone
 
 The owner explicitly deferred these. Don't implement them or ask about them all at once; raise each only when the step that needs it comes up:

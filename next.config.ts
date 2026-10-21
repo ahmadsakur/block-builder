@@ -6,6 +6,15 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   reactCompiler: true,
+  redirects: async () => [
+    {
+      destination: "/reset-password?token=:code",
+      has: [{ key: "code", type: "query", value: "(?<code>.+)" }],
+      missing: [{ key: "token", type: "query" }],
+      permanent: false,
+      source: "/reset-password",
+    },
+  ],
   turbopack: {
     rules: {
       "*.css": {

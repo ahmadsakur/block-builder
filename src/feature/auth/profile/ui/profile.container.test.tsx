@@ -8,6 +8,17 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
+vi.mock("../../_shared/service/auth.service", () => ({
+  changePassword: vi.fn(async () => {
+    throw new Error("Your current password is incorrect.");
+  }),
+  deleteAccount: vi.fn(),
+  getSession: vi.fn(async () => ({
+    user: { email: "jane@acme.com", id: "user-1", name: "Jane Doe" },
+  })),
+  updateProfile: vi.fn(),
+}));
+
 const LOAD_TIMEOUT = { timeout: 3000 };
 
 function renderProfile() {
