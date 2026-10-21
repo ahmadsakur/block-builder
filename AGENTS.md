@@ -29,7 +29,10 @@ Declare every env var in `src/env.ts` and `.env.example`. Read through `env` fro
 
 ## UI and tokens
 
-- shadcn on Base UI primitives (`base-nova` preset). Add components with `pnpm exec shadcn add <name>`, then `pnpm lint:fix`.
+- shadcn on Base UI primitives (`base-vega` style). Add components with `pnpm exec shadcn add <name>`, then `pnpm lint:fix`.
+- Dashboard blocks come from the `@dashboardblocks` registry (`pnpm exec shadcn add @dashboardblocks/<name>`, docs: https://www.dashboardblocks.com/llms.txt). They build on our `ui/` components and tokens.
+- Registry code is vendored: `src/components/ui/`, `src/components/dashboardblocks/`, `src/lib/dashboardblocks/` are formatted but not linted. Prefer composing over editing them.
 - Tokens are shadcn CSS variables in `src/app/globals.css`: `:root` (light), `.dark` (dark), mapped to Tailwind in `@theme inline`. Change the look there only; never hardcode colors. Preview everything at `/tokens` (dev only).
-- Dark mode: `next-themes`, class strategy, defaults to system.
+- Dark mode: `next-themes`, class strategy, defaults to system. Client providers (theme, tooltip, dashboardblocks `LinkProvider`) live in `src/app/providers.tsx`.
+- Dashboard frame: `src/app/dashboard/layout.tsx` renders `DashboardShell` (sidebar + header + content) from `src/components/dashboard-shell/`. Nav items are data in `shell-nav.tsx`.
 - A link that looks like a button is `<Link className={buttonVariants()}>`, not `<Button render={<Link />}>` (that gives the link `role="button"`).

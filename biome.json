@@ -39,6 +39,16 @@
           }
         }
       }
+    },
+    {
+      "includes": [
+        "src/components/ui/**",
+        "src/components/dashboardblocks/**",
+        "src/lib/dashboardblocks/**"
+      ],
+      "linter": {
+        "enabled": false
+      }
     }
   ],
   "assist": {

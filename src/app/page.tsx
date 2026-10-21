@@ -13,7 +13,10 @@ export default function Home() {
         <code className="font-mono text-foreground">src/app/globals.css</code>.
       </p>
       <div className="flex gap-2">
-        <Link href="/tokens" className={buttonVariants()}>
+        <Link href="/dashboard" className={buttonVariants()}>
+          Open dashboard
+        </Link>
+        <Link href="/tokens" className={buttonVariants({ variant: "outline" })}>
           View design tokens
         </Link>
         <ThemeToggle />

@@ -30,8 +30,9 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 ## Settled decisions
 
 - **Base stack:** Next 16 (App Router, TS, `src/` dir), Tailwind v4, shadcn, design tokens, Biome (lint + format, no ESLint/Prettier), pnpm only, React Hook Form + zod, Vitest.
-- **Design tokens:** the shadcn + Tailwind CSS-variable format in `globals.css` *is* the standard. No designer-token import tooling: designers deliver in our format.
-- **Components:** shadcn 4 on **Base UI** primitives, `base-nova` preset.
+- **Design tokens:** the shadcn + Tailwind CSS-variable format in `globals.css` *is* the standard. No designer-token import tooling: designers deliver in our format. Tokens hold the look together; character comes from tokens, not from mixing component libraries.
+- **Components:** shadcn 4 on **Base UI** primitives, `vega` style, default theme matched to dashboardblocks (neutral + blue charts, Geist).
+- **Registries:** `@dashboardblocks` for dashboard blocks (shadcn-native, shares our tokens). Other registries (e.g. `@stealth`) only as cherry-picked parts with tokens bridged to ours, never as the component base.
 - **Cache Components:** kept on (dynamic by default, `"use cache"` to opt in).
 - **Base UI:** auth screens + dashboard essentials (sidebar/app shell, datatable, settings, etc.), all working on **mock data** before any backend exists.
 - **Folders:** organized by domain/feature. The owner writes `conventions.md` and related instruction docs as needed (data fetching, etc.).
@@ -52,9 +53,10 @@ Each step = one commit on `base`. Stop after each step, walk the owner through w
 
 1. ✅ Tooling: update Biome, add Vitest, zod env validation at startup, `CLAUDE.md` pointing to `AGENTS.md`, git + Claude Code hooks.
 2. ✅ shadcn init + design tokens (light/dark) + `/tokens` preview.
+2b. ✅ Dashboard shell (`/dashboard` layout: sidebar + header + content) and `/dashboard/home` with the dashboardblocks Store dashboard; tokens matched to dashboardblocks.
 3. Folder layout + frontend conventions docs.
 4. Mock data layer.
-5. App shell: sidebar, topbar.
+5. App shell: sidebar, topbar. (Started in 2b; finish with real nav, search, notifications.)
 6. Auth screens.
 7. Datatable + one example feature.
 8. Settings + form pattern.
