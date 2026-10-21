@@ -38,6 +38,8 @@ Declare every env var in `src/env.ts` and `.env.example`. Read through `env` fro
 
 TanStack Query is the data layer and nuqs holds URL state. Every feature reads data through `ui/ -> query/ -> service/`; base services return mock data with a delay. Providers (QueryClient, nuqs adapter) live in `src/components/_common/providers.tsx`. Details: `.agents/domain-structure.md` (Data flow).
 
+Add-ons: optional layers that sit on top of a backend (an auth library, payments, …) are recipes in `.agents/addons/<name>.md`, never branches. Apply one only when asked ("apply the <name> add-on"): read the whole recipe, then follow it step by step.
+
 ## Code style
 
 - No comments in source files. Put rules and reasons in these docs.

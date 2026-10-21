@@ -29,6 +29,7 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 
 ## Settled decisions
 
+- **Backends vs add-ons (2026-10-21):** a backend is the foundation. Each project picks exactly one, so backends are **branches**. An add-on is an optional layer that can be combined with others (better-auth, payments, i18n, uploads), so add-ons are **recipes**, never branches: agent docs in `.agents/addons/<name>.md`, applied after cloning. No shadcn-registry packaging for now. Each recipe lists which backends it fits, and a recipe that fits one backend only lives on that backend's branch.
 - **Base stack:** Next 16 (App Router, TS, `src/` dir), Tailwind v4, shadcn, design tokens, Biome (lint + format, no ESLint/Prettier), pnpm only, React Hook Form + zod, Vitest.
 - **Design tokens:** the shadcn + Tailwind CSS-variable format in `globals.css` *is* the standard. No designer-token import tooling: designers deliver in our format. Tokens hold the look together; character comes from tokens, not from mixing component libraries.
 - **Components:** shadcn 4 on **Base UI** primitives, `vega` style, default theme matched to dashboardblocks (neutral + blue charts, Geist).
