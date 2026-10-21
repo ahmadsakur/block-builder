@@ -67,8 +67,8 @@ export default function HomeContainer() {
             <RevenueChart
               data={data?.chart ?? []}
               description={data?.bestDay ?? ""}
-              currentLabel={data?.rangeLabel ?? ""}
-              previousLabel={data?.previousLabel ?? ""}
+              currentLabel={data?.rangeLabel ?? "This period"}
+              previousLabel={data?.previousLabel ?? "Previous period"}
               showPrevious={query.compare}
               status={status}
             />
