@@ -26,3 +26,10 @@ pnpm only.
 ## Env
 
 Declare every env var in `src/env.ts` and `.env.example`. Read through `env` from `@/env`, never `process.env` (Biome enforces this in `src/`).
+
+## UI and tokens
+
+- shadcn on Base UI primitives (`base-nova` preset). Add components with `pnpm exec shadcn add <name>`, then `pnpm lint:fix`.
+- Tokens are shadcn CSS variables in `src/app/globals.css`: `:root` (light), `.dark` (dark), mapped to Tailwind in `@theme inline`. Change the look there only; never hardcode colors. Preview everything at `/tokens` (dev only).
+- Dark mode: `next-themes`, class strategy, defaults to system.
+- A link that looks like a button is `<Link className={buttonVariants()}>`, not `<Button render={<Link />}>` (that gives the link `role="button"`).
