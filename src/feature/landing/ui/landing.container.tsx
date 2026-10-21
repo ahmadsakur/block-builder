@@ -16,6 +16,12 @@ export default function LandingContainer() {
         <Link href="/dashboard" className={buttonVariants()}>
           Open dashboard
         </Link>
+        <Link
+          href="/sign-in"
+          className={buttonVariants({ variant: "outline" })}
+        >
+          Sign in
+        </Link>
         <Link href="/tokens" className={buttonVariants({ variant: "outline" })}>
           View design tokens
         </Link>

@@ -1,9 +1,7 @@
 import { GalleryVerticalEndIcon, HouseIcon, PaletteIcon } from "lucide-react";
 import type {
-  AppUser,
   Crumb,
   NavSection,
-  UserMenuLink,
   Workspace,
 } from "@/components/dashboardblocks/app-shell";
 
@@ -25,13 +23,6 @@ export const WORKSPACES: Workspace[] = [
     plan: "Pro plan",
   },
 ];
-
-export const CURRENT_USER: AppUser = {
-  email: "jane@acme.com",
-  name: "Jane Doe",
-};
-
-export const USER_LINKS: UserMenuLink[] = [];
 
 export function breadcrumbsFor(pathname: string): Crumb[] {
   const current = NAV_SECTIONS.flatMap((section) => section.items).find(

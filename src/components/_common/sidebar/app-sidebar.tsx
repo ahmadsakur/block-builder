@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -10,17 +10,11 @@ import {
 } from "@/components/_ui/sidebar";
 import {
   AppNav,
-  SidebarUserMenu,
   WorkspaceSwitcher,
 } from "@/components/dashboardblocks/app-shell";
-import {
-  CURRENT_USER,
-  NAV_SECTIONS,
-  USER_LINKS,
-  WORKSPACES,
-} from "./sidebar-nav";
+import { NAV_SECTIONS, WORKSPACES } from "./sidebar-nav";
 
-export default function AppSidebar() {
+export default function AppSidebar({ footer }: { footer?: ReactNode }) {
   const pathname = usePathname();
   const [workspaceId, setWorkspaceId] = useState(WORKSPACES[0]?.id ?? "");
 
@@ -36,13 +30,7 @@ export default function AppSidebar() {
       <SidebarContent>
         <AppNav pathname={pathname} sections={NAV_SECTIONS} />
       </SidebarContent>
-      <SidebarFooter>
-        <SidebarUserMenu
-          links={USER_LINKS}
-          onSignOut={() => {}}
-          user={CURRENT_USER}
-        />
-      </SidebarFooter>
+      {footer && <SidebarFooter>{footer}</SidebarFooter>}
     </Sidebar>
   );
 }

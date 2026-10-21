@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronRightIcon, GalleryVerticalEndIcon } from "lucide-react";
+import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
+import BrandLogo from "@/components/_common/brand-logo";
 import { Button, buttonVariants } from "@/components/_ui/button";
-import { BrandMark } from "@/components/dashboardblocks/app-shell";
 import { ErrorPageLayout } from "@/components/dashboardblocks/error-pages";
 import { NAV_SECTIONS } from "../sidebar/sidebar-nav";
 
@@ -15,14 +15,7 @@ export default function NotFoundPage() {
   return (
     <ErrorPageLayout
       focusOnMount
-      brand={
-        <>
-          <BrandMark>
-            <GalleryVerticalEndIcon />
-          </BrandMark>
-          bp-boilerplate
-        </>
-      }
+      brand={<BrandLogo />}
       code="404"
       title="Page not found"
       description="The page may have moved, or the link has a typo."

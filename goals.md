@@ -37,7 +37,7 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 - **Base UI:** auth screens + dashboard essentials (sidebar/app shell, datatable, settings, etc.), all working on **mock data** before any backend exists.
 - **Folders:** domain-driven, ported from the owner's back-office project: thin `app/` routes, `feature/<route>/{ui,types,data,logic,store}`, shared `components/{_ui,_common,dashboardblocks}`. Rules in `.agents/domain-structure.md`. Registry numbered blocks are ported into `feature/` and never imported directly. No comments in source. The owner adds further instruction docs as needed (data fetching, etc.).
 - **Conventions per mode:** base holds frontend rules. Each backend branch adds its own backend rules docs and agent instructions.
-- **Backend adapter:** thin. The UI must not depend on a specific backend. Settled shape: `ui/ -> query/ (TanStack Query + nuqs) -> service/` per feature; base `service/` files return mock data, each backend branch rewrites only the service bodies. Anything server-side is designed in that branch from the owner's recipe, never in base. Contract details (auth/session, storage, list/pagination shape) are still deferred.
+- **Backend adapter:** thin. The UI must not depend on a specific backend. Settled shape: `ui/ -> query/ (TanStack Query + nuqs) -> service/` per feature; base `service/` files return mock data, each backend branch rewrites only the service bodies. Anything server-side is designed in that branch from the owner's recipe, never in base. Provisional auth contract (owner to confirm): `Session { user: AuthUser }`, `AuthUser { id, email, name, avatarUrl? }`, service functions `getSession`, `signIn`, `signUp`, `requestPasswordReset`, `resetPassword({ token, password })`, `signOut`. Still deferred: storage API, list/pagination shape.
 
 ## Current state (2026-10-21)
 
@@ -49,7 +49,7 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 
 ## Plan for `base`
 
-Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 6.**
+Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 7.**
 
 1. ✅ Tooling: update Biome, add Vitest, zod env validation at startup, `CLAUDE.md` pointing to `AGENTS.md`, git + Claude Code hooks.
 2. ✅ shadcn init + design tokens (light/dark) + `/tokens` preview.
@@ -57,7 +57,7 @@ Each step = one commit on `base`. Stop after each step, walk the owner through w
 3. ✅ Folder layout + frontend conventions docs (`.agents/domain-structure.md`; home dashboard containerized as the reference domain).
 4. ✅ Mock data layer: TanStack Query + nuqs, `query/` + `service/` per feature, home dashboard wired through it.
 5. ✅ App shell: sidebar, topbar, ⌘K command menu, notifications (feature via header slot, optimistic mark-as-read), 404 + error boundary pages.
-6. Auth screens.
+6. ✅ Auth screens: sign-in, sign-up, forgot/reset password on `AuthLayout`, RHF + zod form pattern, user menu with sign-out. Status colors moved to tokens (`success`/`warning`/`info`/`destructive`) with a lint check against raw colors.
 7. Datatable + one example feature.
 8. Settings + form pattern.
 

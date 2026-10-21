@@ -105,12 +105,21 @@ Map query state to block status with `isPending` → `"loading"` and `isError` �
 Biome formats them but doesn't lint them, and we prefer composing them over editing them.
 The look comes from tokens in `app/globals.css`, not from edits here.
 
+The one deliberate edit: dashboardblocks hardcodes status colors (emerald, red, orange,
+sky). We map them to our tokens: `text-success`, `text-destructive`, `text-warning`,
+`text-info`, their `bg-*/10` soft backgrounds, and `var(--color-success)` etc. for fills.
+`pnpm lint` runs `scripts/check-tokens.mjs`, which fails on any Tailwind palette color or
+raw hex in `src/`, so newly installed blocks get flagged until they're mapped.
+
 **Numbered blocks are recipes, never imports.** dashboardblocks ships examples named
 `kpi-01`, `data-table-02`, `dashboard-01`, … Pages and features never import a numbered
 block. To use one:
 
-1. Preview it: `pnpm exec shadcn add @dashboardblocks/<block> --view` (or `--dry-run`).
-2. Install it, so its base parts land in `components/dashboardblocks/` and `components/_ui/`.
+1. Preview it: `pnpm exec shadcn add @dashboardblocks/<block> --dry-run` (or `--view`).
+2. From a clean git tree, install it with `-y --overwrite` (without `--overwrite` the CLI
+   stops on an interactive prompt). Then `git diff` the existing files it touched and
+   `git restore` the ones we customized (the token-mapped files above, any edited `_ui`
+   component). New files stay. Run `pnpm lint:fix` and map any raw colors it reports.
 3. Port the numbered file into `feature/<domain>/ui/components/<part>/<name>.tsx` with a
    domain name (`revenue-chart.tsx`, not `chart-panel-01.tsx`). Drop its `exampleProps`.
    Move its seed data to `data/`, its derivations and sentences to `logic/`, its shapes
@@ -120,8 +129,17 @@ block. To use one:
 Base parts stay shared: `block-state`, `kpi`, `chart`, `chart-panel`, `stat-group`,
 `table`, `breakdown`, `funnel`, `forecast`, `inventory`, `dashboard-header`, `app-shell`, ….
 
-Always `--dry-run` before `shadcn add`. A block re-installs the `_ui` components it
-depends on, and `--overwrite` would replace any we customized.
+Always `--dry-run` before `shadcn add`. A block re-installs the `_ui` components and base
+parts it depends on, so step 2's restore is what protects our customizations.
+
+## Forms
+
+React Hook Form + zod + shadcn `Field`. The zod schema lives in `types/` and its inferred
+type is the form's input type. Text inputs use `components/_common/form/text-field.tsx`
+(label, input, description and error in one, wired through `Controller`). A form component
+is dumb: it validates and calls `onSubmit(values)`; its container runs the mutation and
+passes `pending` and `error` back down. Server errors render as a form-level `FieldError`.
+See `feature/auth/sign-in/` and its form test.
 
 ## Naming
 
@@ -154,8 +172,8 @@ app/  ->  feature/  ->  components/, lib/, hooks/
   to a shared root (`components/_common`, `lib/`) or a parent `_shared/`.
 - **`components/`, `lib/` and `hooks/` never import from `feature/`.** A shared component
   that needs domain data receives it as props. When the shell needs a whole feature
-  widget, the route layout passes it in as a slot: `app/dashboard/layout.tsx` renders
-  `<DashboardShell headerActions={<NotificationBellContainer />}>`.
+  widget, the route layout passes it in as a slot: `app/dashboard/layout.tsx` fills
+  `DashboardShell`'s `headerActions` (notifications bell) and `sidebarFooter` (user menu).
 
 ## Checklist for a new page or domain
 

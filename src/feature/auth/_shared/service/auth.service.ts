@@ -1,0 +1,56 @@
+import { delay } from "@/lib/delay";
+import { DEMO_USER, TAKEN_EMAIL, WRONG_PASSWORD } from "../data/auth.data";
+import type {
+  ForgotPasswordInput,
+  Session,
+  SignInInput,
+  SignUpInput,
+} from "../types/auth.types";
+
+const MOCK_LATENCY_MS = 700;
+
+let session: Session | null = { user: DEMO_USER };
+
+export async function getSession(): Promise<Session | null> {
+  await delay(MOCK_LATENCY_MS);
+  return session;
+}
+
+export async function signIn({
+  email,
+  password,
+}: SignInInput): Promise<Session> {
+  await delay(MOCK_LATENCY_MS);
+  if (password === WRONG_PASSWORD) {
+    throw new Error("That email and password don't match.");
+  }
+  session = { user: { ...DEMO_USER, email } };
+  return session;
+}
+
+export async function signUp({ name, email }: SignUpInput): Promise<Session> {
+  await delay(MOCK_LATENCY_MS);
+  if (email === TAKEN_EMAIL) {
+    throw new Error("An account with this email already exists.");
+  }
+  session = { user: { email, id: `user-${email}`, name } };
+  return session;
+}
+
+export async function requestPasswordReset(
+  _input: ForgotPasswordInput,
+): Promise<void> {
+  await delay(MOCK_LATENCY_MS);
+}
+
+export async function resetPassword(_input: {
+  token: string;
+  password: string;
+}): Promise<void> {
+  await delay(MOCK_LATENCY_MS);
+}
+
+export async function signOut(): Promise<void> {
+  await delay(MOCK_LATENCY_MS);
+  session = null;
+}
