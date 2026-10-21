@@ -7,3 +7,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Commands
+
+pnpm only.
+
+- `pnpm dev`: dev server.
+- `pnpm lint` / `pnpm lint:fix`: Biome lint + format check / auto-fix.
+- `pnpm typecheck`: route types + `tsc`.
+- `pnpm test` (watch) / `pnpm test:run` (once). Tests live next to code as `*.test.ts(x)`.
+- `pnpm check`: lint + typecheck + tests. Must pass before work is done.
+
+## Automation
+
+- Claude Code hooks (`.claude/settings.json`): each edited file is Biome-fixed; on stop, lint + typecheck + tests for changed files run when the tree changed.
+- Git hooks (`lefthook.yml`): pre-commit Biome-fixes staged files; pre-push runs typecheck + tests.
+
+## Env
+
+Declare every env var in `src/env.ts` and `.env.example`. Read through `env` from `@/env`, never `process.env` (Biome enforces this in `src/`).
