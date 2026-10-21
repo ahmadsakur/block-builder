@@ -142,10 +142,6 @@ export function buildStoreData(
         Math.round(revenueAt(offset, region, false)),
       ).reduce((sum, value) => sum + value, 0),
       elapsed,
-      name: today.toLocaleDateString("en-US", {
-        month: "long",
-        timeZone: "UTC",
-      }),
       target:
         Math.round((DAILY_TARGET * daysInMonth * regionShare) / 1_000) * 1_000,
       total: daysInMonth,

@@ -58,7 +58,6 @@ export interface RevenuePoint {
 export interface MonthToDate {
   current: number;
   elapsed: number;
-  name: string;
   target: number;
   total: number;
 }

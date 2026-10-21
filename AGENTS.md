@@ -34,6 +34,10 @@ pnpm only.
 
 Declare every env var in `src/env.ts` and `.env.example`. Read through `env` from `@/env`, never `process.env` (Biome enforces this in `src/`). Validation runs when `next.config.ts` loads, so `dev`/`build` fail fast. Client and shared vars must also be listed by full name in `experimental__runtimeEnv` so Next can inline them. `SKIP_ENV_VALIDATION=1` skips validation (e.g. Docker image builds).
 
+## Data
+
+TanStack Query is the data layer and nuqs holds URL state. Every feature reads data through `ui/ -> query/ -> service/`; base services return mock data with a delay. Providers (QueryClient, nuqs adapter) live in `src/components/_common/providers.tsx`. Details: `.agents/domain-structure.md` (Data flow).
+
 ## Code style
 
 - No comments in source files. Put rules and reasons in these docs.

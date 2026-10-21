@@ -51,8 +51,12 @@ A domain folder is split by functionality. Create only the layers the domain nee
 ```
 feature/dashboard/<domain>/
   ui/
-    <domain>.container.tsx        entry component the route renders; owns page state
-    components/<part>/*.tsx       feature components, grouped by UI part
+    <domain>.container.tsx        entry component the route renders; wires query hooks to components
+    components/<part>/*.tsx       dumb feature components: data in via props, events out
+  query/
+    <domain>.query.ts             TanStack Query hooks + keys, and the page's URL filters (nuqs)
+  service/
+    <domain>.service.ts           async functions the query hooks call; mock bodies in base
   types/
     <name>.types.ts               type definitions + domain constants (enums, options)
   data/
@@ -72,7 +76,28 @@ components flat in `ui/components/`. A sub-domain (like `billing/invoices`,
 `billing/quotes`) gets its own folder with the same internal grammar; code shared
 between siblings goes in the parent's `_shared/`.
 
-Data fetching layers (`query/`, `_server/`) are defined per backend branch, not here.
+## Data flow
+
+```
+ui/  ->  query/  ->  service/
+```
+
+- **ui/** never fetches. Components get data and `status` via props; the container
+  calls the query hooks.
+- **query/** owns how the page asks for data: query keys, `useQuery`/`useMutation`
+  hooks, `keepPreviousData` for filter changes, invalidation. Page filters that belong
+  in the URL (date range, search, pagination) are nuqs parsers here, and they feed the
+  query keys. A page whose container reads nuqs params is wrapped in `<Suspense>` in its
+  `page.tsx`.
+- **service/** is plain async functions with typed inputs and outputs from `types/`.
+  In base they return `data/` + `logic/` results after `delay()` from `@/lib/delay`.
+  A backend branch rewrites only these function bodies (a fetcher, a Supabase call,
+  Payload, …); `ui/` and `query/` stay untouched. Server-side code, if a backend needs
+  any, is defined in that branch.
+
+Map query state to block status with `isPending` → `"loading"` and `isError` →
+`"error"`, and dim on refetch with `BlockBusy busy={query.isPlaceholderData}`. See
+`feature/dashboard/home/ui/home.container.tsx` and its test for the full pattern.
 
 ## Registry components (shadcn, dashboardblocks)
 
@@ -133,7 +158,8 @@ app/  ->  feature/  ->  components/, lib/, hooks/
 ## Checklist for a new page or domain
 
 1. Create `feature/<route path>/` with the layers it needs (start with `ui/`).
-2. Add `ui/<name>.container.tsx`.
+2. Add `ui/<name>.container.tsx`. If the page shows data, add `service/` (mock) and
+   `query/` and wire them through the container.
 3. Add the route under `app/`: a thin `page.tsx` that renders the container.
 4. Add the page to the sidebar nav data (`components/_common/sidebar/sidebar-nav.tsx`) if it
    belongs in the dashboard.

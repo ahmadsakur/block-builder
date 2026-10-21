@@ -19,14 +19,16 @@ import type { MonthToDate } from "../../../types/home.types";
 
 const currency = (value: number) => formatCurrency(value);
 
+const NO_MONTH: MonthToDate = { current: 0, elapsed: 0, target: 0, total: 0 };
+
 type MonthForecastProps = {
-  month: MonthToDate;
+  month?: MonthToDate;
   status?: BlockStatus;
 };
 
 export default function MonthForecast({ month, status }: MonthForecastProps) {
-  const { current, elapsed, target, total } = month;
-  const state = getBlockState(status, current);
+  const { current, elapsed, target, total } = month ?? NO_MONTH;
+  const state = getBlockState(status, month?.current);
   const { projected, rate, remaining, required } = getRunRate({
     current,
     elapsed,
@@ -46,9 +48,7 @@ export default function MonthForecast({ month, status }: MonthForecastProps) {
       <section className="@container flex flex-col gap-4">
         <header className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-0.5">
-            <h2 className="font-semibold tracking-tight">
-              {month.name} revenue
-            </h2>
+            <h2 className="font-semibold tracking-tight">Revenue this month</h2>
             <p className="text-muted-foreground text-sm">
               Month to date, projected at the daily run-rate so far.
             </p>
@@ -58,7 +58,7 @@ export default function MonthForecast({ month, status }: MonthForecastProps) {
         <dl className="flex flex-wrap items-end gap-x-10 gap-y-3 border-t pt-4">
           <div className="flex flex-col gap-1">
             <dt className="text-muted-foreground text-sm">
-              So far, day {elapsed} of {total}
+              {month ? `So far, day ${elapsed} of ${total}` : "So far"}
             </dt>
             <dd>
               <KPIValue value={current} format={currency} />
