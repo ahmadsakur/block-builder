@@ -6,13 +6,13 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "biome check",
-    "lint:fix": "biome check --write",
+    "lint": "biome check && node scripts/check-tokens.mjs",
+    "lint:fix": "biome check --write && node scripts/check-tokens.mjs",
     "format": "biome format --write",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "check": "biome check && pnpm typecheck && vitest run",
+    "check": "pnpm lint && pnpm typecheck && vitest run",
     "prepare": "lefthook install"
   },
   "dependencies": {

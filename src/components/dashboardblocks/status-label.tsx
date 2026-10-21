@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 type StatusTone = "good" | "warning" | "bad" | "info" | "neutral";
 
 const statusToneClasses: Record<StatusTone, string> = {
-  bad: "text-red-700 dark:text-red-400",
-  good: "text-emerald-700 dark:text-emerald-400",
-  info: "text-sky-700 dark:text-sky-400",
+  bad: "text-destructive",
+  good: "text-success",
+  info: "text-info",
   neutral: "text-muted-foreground",
-  warning: "text-orange-700 dark:text-orange-400",
+  warning: "text-warning",
 };
 
 interface StatusLabelProps extends ComponentProps<"span"> {

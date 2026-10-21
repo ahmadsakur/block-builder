@@ -92,9 +92,7 @@ export default function LowStockList({
                     </span>
                     <Details>
                       <span
-                        className={cn(
-                          late && "font-medium text-red-700 dark:text-red-400",
-                        )}
+                        className={cn(late && "font-medium text-destructive")}
                       >
                         {formatCover(cover)}
                         {late && cover > 0 && (

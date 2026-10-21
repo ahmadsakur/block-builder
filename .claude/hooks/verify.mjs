@@ -49,7 +49,7 @@ try {
 if (lastGreen === fingerprint) process.exit(0);
 
 const steps = [
-  ["lint", "pnpm exec biome check --max-diagnostics=20"],
+  ["lint", "pnpm -s lint"],
   ["typecheck", "pnpm -s typecheck"],
   ["test", "pnpm exec vitest run --changed --passWithNoTests"],
 ];

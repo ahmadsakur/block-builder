@@ -18,7 +18,7 @@ export default function ColorTokens() {
           ))}
         </div>
       </TokenSection>
-      <TokenSection title="Lines, focus, charts">
+      <TokenSection title="Lines, focus, status, charts">
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-5">
           {SINGLE_COLORS.map((name) => (
             <div key={name} className="flex flex-col gap-1.5 text-xs">

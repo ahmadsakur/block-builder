@@ -198,10 +198,7 @@ function KPIChange({
       <span
         className={cn(
           "font-medium tabular-nums",
-          change !== 0 &&
-            (good
-              ? "text-emerald-700 dark:text-emerald-400"
-              : "text-red-700 dark:text-red-400"),
+          change !== 0 && (good ? "text-success" : "text-destructive"),
         )}
       >
         {change === 0 ? "No change" : `${change > 0 ? "Up" : "Down"} ${amount}`}

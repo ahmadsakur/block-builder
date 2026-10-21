@@ -117,9 +117,7 @@ function BlockStateText({
       data-slot="block-state-text"
       className={cn(
         "block",
-        state === "error"
-          ? "text-red-700 dark:text-red-400"
-          : "text-muted-foreground",
+        state === "error" ? "text-destructive" : "text-muted-foreground",
         className,
         "text-xl font-light tracking-normal",
       )}

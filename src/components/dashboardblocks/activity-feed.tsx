@@ -14,20 +14,20 @@ type ActivityTone =
 
 const activityToneClasses: Record<ActivityTone, string> = {
   accent: "bg-chart-2/15 text-foreground",
-  danger: "bg-red-500/10 text-red-700 dark:text-red-400",
-  info: "bg-sky-500/10 text-sky-700 dark:text-sky-400",
+  danger: "bg-destructive/10 text-destructive",
+  info: "bg-info/10 text-info",
   neutral: "bg-muted text-foreground",
-  success: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400",
-  warning: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+  success: "bg-success/10 text-success",
+  warning: "bg-warning/10 text-warning",
 };
 
 const activityToneColors: Record<ActivityTone, string> = {
   accent: "var(--color-chart-2)",
-  danger: "var(--color-red-600)",
-  info: "var(--color-sky-600)",
+  danger: "var(--color-destructive)",
+  info: "var(--color-info)",
   neutral: "var(--color-muted-foreground)",
-  success: "var(--color-emerald-600)",
-  warning: "var(--color-orange-500)",
+  success: "var(--color-success)",
+  warning: "var(--color-warning)",
 };
 
 function ActivityFeed({ className, ...props }: ComponentProps<"ol">) {
