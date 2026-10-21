@@ -1,3 +1,10 @@
+# Project agent rules
+
+Before creating a page, a new domain (feature area), or pulling anything from a component
+registry, read [`.agents/domain-structure.md`](.agents/domain-structure.md). It defines the
+domain-driven folder structure, layers, naming, dependency rules, and how registry blocks
+become feature code.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know
@@ -25,14 +32,19 @@ pnpm only.
 
 ## Env
 
-Declare every env var in `src/env.ts` and `.env.example`. Read through `env` from `@/env`, never `process.env` (Biome enforces this in `src/`).
+Declare every env var in `src/env.ts` and `.env.example`. Read through `env` from `@/env`, never `process.env` (Biome enforces this in `src/`). Validation runs when `next.config.ts` loads, so `dev`/`build` fail fast. Client and shared vars must also be listed by full name in `experimental__runtimeEnv` so Next can inline them. `SKIP_ENV_VALIDATION=1` skips validation (e.g. Docker image builds).
+
+## Code style
+
+- No comments in source files. Put rules and reasons in these docs.
+- Folder layout, naming and import rules: `.agents/domain-structure.md`.
 
 ## UI and tokens
 
-- shadcn on Base UI primitives (`base-vega` style). Add components with `pnpm exec shadcn add <name>`, then `pnpm lint:fix`.
-- Dashboard blocks come from the `@dashboardblocks` registry (`pnpm exec shadcn add @dashboardblocks/<name>`, docs: https://www.dashboardblocks.com/llms.txt). They build on our `ui/` components and tokens.
-- Registry code is vendored: `src/components/ui/`, `src/components/dashboardblocks/`, `src/lib/dashboardblocks/` are formatted but not linted. Prefer composing over editing them.
-- Tokens are shadcn CSS variables in `src/app/globals.css`: `:root` (light), `.dark` (dark), mapped to Tailwind in `@theme inline`. Change the look there only; never hardcode colors. Preview everything at `/tokens` (dev only).
-- Dark mode: `next-themes`, class strategy, defaults to system. Client providers (theme, tooltip, dashboardblocks `LinkProvider`) live in `src/app/providers.tsx`.
-- Dashboard frame: `src/app/dashboard/layout.tsx` renders `DashboardShell` (sidebar + header + content) from `src/components/dashboard-shell/`. Nav items are data in `shell-nav.tsx`.
+- shadcn on Base UI primitives (`base-vega` style), installed into `src/components/_ui/`. Add components with `pnpm exec shadcn add <name> --dry-run` first, then for real, then `pnpm lint:fix`.
+- Dashboard blocks come from the `@dashboardblocks` registry (docs: https://www.dashboardblocks.com/llms.txt). Base parts live in `src/components/dashboardblocks/`; numbered blocks (`kpi-01`, …) are recipes ported into `feature/`, never imported (see `.agents/domain-structure.md`).
+- Registry code is vendored: `src/components/_ui/`, `src/components/dashboardblocks/`, `src/lib/dashboardblocks/` are formatted but not linted. Prefer composing over editing them.
+- Tokens are shadcn CSS variables in `src/app/globals.css`: `:root` (light), `.dark` (dark), mapped to Tailwind in `@theme inline`. Default theme matches dashboardblocks: shadcn neutral + blue chart scale. Blocks read chart colors from `--chart-2` (strongest) to `--chart-1` (lightest). Change the look there only; never hardcode colors. Preview everything at `/tokens` (dev only).
+- Dark mode: `next-themes`, class strategy, defaults to system. Client providers (theme, tooltip, dashboardblocks `LinkProvider`) live in `src/components/_common/providers.tsx`.
+- Dashboard frame: `src/app/dashboard/layout.tsx` renders `DashboardShell` from `src/components/_common/` (sidebar + header + content). Nav items are data in `_common/sidebar/sidebar-nav.tsx`.
 - A link that looks like a button is `<Link className={buttonVariants()}>`, not `<Button render={<Link />}>` (that gives the link `role="button"`).

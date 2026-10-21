@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/_ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -19,8 +19,8 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
+} from "@/components/_ui/dropdown-menu";
+import { Switch } from "@/components/_ui/switch";
 import { formatDateRange } from "@/lib/dashboardblocks/format";
 import { cn } from "@/lib/utils";
 

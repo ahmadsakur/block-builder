@@ -48,11 +48,6 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/*
- * Design tokens. shadcn neutral palette + blue chart scale, matching the
- * dashboardblocks theme. Blocks read charts from --chart-2 (strongest) to
- * --chart-1 (lightest). Change a client's look here only.
- */
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);

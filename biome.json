@@ -42,7 +42,7 @@
     },
     {
       "includes": [
-        "src/components/ui/**",
+        "src/components/_ui/**",
         "src/components/dashboardblocks/**",
         "src/lib/dashboardblocks/**"
       ],

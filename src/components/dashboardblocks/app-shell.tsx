@@ -10,13 +10,7 @@ import {
   SearchIcon,
 } from "lucide-react";
 import { Fragment, type ReactNode, useEffect, useState } from "react";
-import { Link } from "@/components/dashboardblocks/link";
-import {
-  StatusLabel,
-  type StatusTone,
-} from "@/components/dashboardblocks/status-label";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/_ui/avatar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -24,13 +18,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button, buttonVariants } from "@/components/ui/button";
+} from "@/components/_ui/breadcrumb";
+import { Button, buttonVariants } from "@/components/_ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/components/_ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,9 +33,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Kbd } from "@/components/ui/kbd";
-import { Progress } from "@/components/ui/progress";
+} from "@/components/_ui/dropdown-menu";
+import { Kbd } from "@/components/_ui/kbd";
+import { Progress } from "@/components/_ui/progress";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -53,8 +47,13 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+} from "@/components/_ui/sidebar";
+import { TooltipProvider } from "@/components/_ui/tooltip";
+import { Link } from "@/components/dashboardblocks/link";
+import {
+  StatusLabel,
+  type StatusTone,
+} from "@/components/dashboardblocks/status-label";
 import { formatNumber, formatPercent } from "@/lib/dashboardblocks/format";
 import { cn } from "@/lib/utils";
 

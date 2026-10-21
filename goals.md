@@ -35,7 +35,7 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 - **Registries:** `@dashboardblocks` for dashboard blocks (shadcn-native, shares our tokens). Other registries (e.g. `@stealth`) only as cherry-picked parts with tokens bridged to ours, never as the component base.
 - **Cache Components:** kept on (dynamic by default, `"use cache"` to opt in).
 - **Base UI:** auth screens + dashboard essentials (sidebar/app shell, datatable, settings, etc.), all working on **mock data** before any backend exists.
-- **Folders:** organized by domain/feature. The owner writes `conventions.md` and related instruction docs as needed (data fetching, etc.).
+- **Folders:** domain-driven, ported from the owner's back-office project: thin `app/` routes, `feature/<route>/{ui,types,data,logic,store}`, shared `components/{_ui,_common,dashboardblocks}`. Rules in `.agents/domain-structure.md`. Registry numbered blocks are ported into `feature/` and never imported directly. No comments in source. The owner adds further instruction docs as needed (data fetching, etc.).
 - **Conventions per mode:** base holds frontend rules. Each backend branch adds its own backend rules docs and agent instructions.
 - **Backend adapter:** thin. The UI must not depend on a specific backend. Exact contract is **not decided** (see Deferred).
 
@@ -49,12 +49,12 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 
 ## Plan for `base`
 
-Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 3.**
+Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 4.**
 
 1. ✅ Tooling: update Biome, add Vitest, zod env validation at startup, `CLAUDE.md` pointing to `AGENTS.md`, git + Claude Code hooks.
 2. ✅ shadcn init + design tokens (light/dark) + `/tokens` preview.
 2b. ✅ Dashboard shell (`/dashboard` layout: sidebar + header + content) and `/dashboard/home` with the dashboardblocks Store dashboard; tokens matched to dashboardblocks.
-3. Folder layout + frontend conventions docs.
+3. ✅ Folder layout + frontend conventions docs (`.agents/domain-structure.md`; home dashboard containerized as the reference domain).
 4. Mock data layer.
 5. App shell: sidebar, topbar. (Started in 2b; finish with real nav, search, notifications.)
 6. Auth screens.
