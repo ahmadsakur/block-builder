@@ -67,12 +67,12 @@ Then the backend branches, one at a time. Each starts with the owner giving thei
 ## Backend branches
 
 - `vanilla`: HTTP adapter (`/api` fallback rewrite to `API_URL`, `lib/api.ts`). See that branch.
-- ✅ `supabase` (2026-10-21): built without a project (typecheck, tests, build only). It has:
+- ✅ `supabase` (2026-10-21): **done as a base adapter.** Built without a project, then smoke-tested on a throwaway project (`bp-boilerplate-smoke`, ap-southeast-1). It has:
   - the `@supabase/ssr` clients and `proxy.ts` session refresh and redirects
-  - the auth service on Supabase Auth, with a PKCE reset link adapted to the `?token=` page
-  - the `supabase/` folder: `config.toml` plus a `delete_own_account` migration
-  - `db:*` scripts and Supabase-green tokens
-  Data services stay mock. Next step: smoke-test the day-1 checklist in `.agents/backend-supabase.md` on a throwaway project. The repo is the source of truth, never the dashboard.
+  - Auth (all 9 functions)
+  - Storage as the profile photo: bucket and owner-folder RLS in a migration, a browser-side resize, and orphan sweep
+  - `config.toml` aligned with hosted defaults, `db:*` scripts, and Supabase-green tokens
+  Data services stay mock on purpose. Tables, RLS models, realtime and edge functions are domain work per project, using the recipe in `.agents/backend-supabase.md`.
 - `payload`: not started.
 
 ## Deferred — do not decide alone
