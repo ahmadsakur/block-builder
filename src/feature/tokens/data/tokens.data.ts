@@ -22,6 +22,7 @@ export const SINGLE_COLORS = [
   "success",
   "warning",
   "info",
+  "overlay",
   "chart-1",
   "chart-2",
   "chart-3",

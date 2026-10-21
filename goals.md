@@ -37,7 +37,7 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 - **Base UI:** auth screens + dashboard essentials (sidebar/app shell, datatable, settings, etc.), all working on **mock data** before any backend exists.
 - **Folders:** domain-driven, ported from the owner's back-office project: thin `app/` routes, `feature/<route>/{ui,types,data,logic,store}`, shared `components/{_ui,_common,dashboardblocks}`. Rules in `.agents/domain-structure.md`. Registry numbered blocks are ported into `feature/` and never imported directly. No comments in source. The owner adds further instruction docs as needed (data fetching, etc.).
 - **Conventions per mode:** base holds frontend rules. Each backend branch adds its own backend rules docs and agent instructions.
-- **Backend adapter:** thin. The UI must not depend on a specific backend. Settled shape: `ui/ -> query/ (TanStack Query + nuqs) -> service/` per feature; base `service/` files return mock data, each backend branch rewrites only the service bodies. Anything server-side is designed in that branch from the owner's recipe, never in base. Provisional auth contract (owner to confirm): `Session { user: AuthUser }`, `AuthUser { id, email, name, avatarUrl? }`, service functions `getSession`, `signIn`, `signUp`, `requestPasswordReset`, `resetPassword({ token, password })`, `signOut`. Still deferred: storage API, list/pagination shape.
+- **Backend adapter:** thin. The UI must not depend on a specific backend. Settled shape: `ui/ -> query/ (TanStack Query + nuqs) -> service/` per feature; base `service/` files return mock data, each backend branch rewrites only the service bodies. Anything server-side is designed in that branch from the owner's recipe, never in base. Provisional auth contract (owner to confirm): `Session { user: AuthUser }`, `AuthUser { id, email, name, avatarUrl? }`, service functions `getSession`, `signIn`, `signUp`, `requestPasswordReset`, `resetPassword({ token, password })`, `signOut`. Provisional list contract (owner to confirm): service takes `ListQuery { page (1-based), pageSize, sort: { id, desc }[], search }` + domain filters, returns `ListResult<T> { rows, total, facets? }`. Still deferred: storage API.
 
 ## Current state (2026-10-21)
 
@@ -49,7 +49,7 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 
 ## Plan for `base`
 
-Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 7.**
+Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 8.**
 
 1. ✅ Tooling: update Biome, add Vitest, zod env validation at startup, `CLAUDE.md` pointing to `AGENTS.md`, git + Claude Code hooks.
 2. ✅ shadcn init + design tokens (light/dark) + `/tokens` preview.
@@ -58,7 +58,7 @@ Each step = one commit on `base`. Stop after each step, walk the owner through w
 4. ✅ Mock data layer: TanStack Query + nuqs, `query/` + `service/` per feature, home dashboard wired through it.
 5. ✅ App shell: sidebar, topbar, ⌘K command menu, notifications (feature via header slot, optimistic mark-as-read), 404 + error boundary pages.
 6. ✅ Auth screens: sign-in, sign-up, forgot/reset password on `AuthLayout`, RHF + zod form pattern, user menu with sign-out. Status colors moved to tokens (`success`/`warning`/`info`/`destructive`) with a lint check against raw colors.
-7. Datatable + one example feature.
+7. ✅ Datatable + one example feature: server-side `useServerDataTable` + `lib/list-query.ts` contract, `/dashboard/customers` (search, facet filters, sort, pagination, CSV export of selected rows, all URL state). Also: raw-color rule moved to a Biome plugin (editor + every edit), `--overlay` token.
 8. Settings + form pattern.
 
 Then the backend branches, one at a time. Each starts with the owner giving their detailed recipe for that backend.

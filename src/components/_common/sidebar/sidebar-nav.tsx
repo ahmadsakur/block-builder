@@ -1,4 +1,9 @@
-import { GalleryVerticalEndIcon, HouseIcon, PaletteIcon } from "lucide-react";
+import {
+  GalleryVerticalEndIcon,
+  HouseIcon,
+  PaletteIcon,
+  UsersIcon,
+} from "lucide-react";
 import type {
   Crumb,
   NavSection,
@@ -7,7 +12,10 @@ import type {
 
 export const NAV_SECTIONS: NavSection[] = [
   {
-    items: [{ href: "/dashboard/home", icon: <HouseIcon />, title: "Home" }],
+    items: [
+      { href: "/dashboard/home", icon: <HouseIcon />, title: "Home" },
+      { href: "/dashboard/customers", icon: <UsersIcon />, title: "Customers" },
+    ],
   },
   {
     label: "Dev",

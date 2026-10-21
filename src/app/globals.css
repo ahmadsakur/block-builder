@@ -30,6 +30,7 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-info: var(--info);
+  --color-overlay: var(--overlay);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -70,6 +71,7 @@
   --success: oklch(0.508 0.118 165.612);
   --warning: oklch(0.553 0.195 38.402);
   --info: oklch(0.5 0.134 242.749);
+  --overlay: oklch(0 0 0);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.708 0 0);

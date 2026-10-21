@@ -102,14 +102,16 @@ Map query state to block status with `isPending` → `"loading"` and `isError` �
 ## Registry components (shadcn, dashboardblocks)
 
 `components/_ui/` and `components/dashboardblocks/` are **vendored registry code**:
-Biome formats them but doesn't lint them, and we prefer composing them over editing them.
-The look comes from tokens in `app/globals.css`, not from edits here.
+Biome formats them and runs only our raw-color rule on them (built-in lint rules are off),
+and we prefer composing them over editing them. The look comes from tokens in
+`app/globals.css`, not from edits here.
 
-The one deliberate edit: dashboardblocks hardcodes status colors (emerald, red, orange,
-sky). We map them to our tokens: `text-success`, `text-destructive`, `text-warning`,
-`text-info`, their `bg-*/10` soft backgrounds, and `var(--color-success)` etc. for fills.
-`pnpm lint` runs `scripts/check-tokens.mjs`, which fails on any Tailwind palette color or
-raw hex in `src/`, so newly installed blocks get flagged until they're mapped.
+The one deliberate edit: registry code hardcodes some colors (dashboardblocks status
+colors in emerald, red, orange and sky; shadcn overlays in `bg-black/10`). We map them to
+our tokens: `text-success`, `text-destructive`, `text-warning`, `text-info`, their
+`bg-*/10` soft backgrounds, `var(--color-success)` etc. for fills, and `bg-overlay/10` for
+scrims. The Biome plugin `lint/no-raw-colors.grit` flags any raw color, so newly installed
+blocks fail `pnpm lint` until they're mapped.
 
 **Numbered blocks are recipes, never imports.** dashboardblocks ships examples named
 `kpi-01`, `data-table-02`, `dashboard-01`, … Pages and features never import a numbered
@@ -131,6 +133,37 @@ Base parts stay shared: `block-state`, `kpi`, `chart`, `chart-panel`, `stat-grou
 
 Always `--dry-run` before `shadcn add`. A block re-installs the `_ui` components and base
 parts it depends on, so step 2's restore is what protects our customizations.
+
+## Lists and tables
+
+Every list page pages, sorts, searches and filters **in the service**, not in the browser,
+so it works the same on any backend.
+
+- Contract (`lib/list-query.ts`): the service takes a `ListQuery` (`page`, 1-based;
+  `pageSize`; `sort: { id, desc }[]`; `search`) plus the domain's filters, and returns a
+  `ListResult<T>`: `{ rows, total, facets? }`. `facets` are per-filter counts for the
+  facet menus, each counted without its own filter.
+- URL state: `listQueryParsers()` gives the nuqs parsers (`?page=2&size=20&sort=mrr.desc&q=…`);
+  add one `parseAsArrayOf(parseAsStringLiteral(...))` per filter. Debounce the search
+  before it reaches the query (`hooks/use-debounced-value.ts`).
+- Table: `components/_common/data-table/use-server-data-table.ts` binds that state to
+  dashboardblocks' `useDataTable` in server mode; render rows with `DataTableContent` and
+  `DataTablePagination`. Give the block state only `loading`/`error`, so an empty result
+  shows "No rows match your filters" with a working Clear button.
+- Toolbar, always in this order: `ColumnMenu` on the left; on the right
+  `<FilterMenu>…` then `DataTableReset` then `TableSearch`. All three live in
+  `components/_common/data-table/`. `TableSearch` is the input with the search icon inside.
+  `FilterMenu` is the split trigger (`Status | All ⌄`): label, divider, current value, and
+  an active state when something is picked; multi-select by default with facet counts and a
+  Clear item, `multiple={false}` for single-choice radios. Search and filters read and write
+  the URL state directly; only `ColumnMenu` and row selection go through the table.
+- Do not use dashboardblocks' `DataTableSearch`, `DataTableFacetFilter` or
+  `DataTableViewOptions` in pages; ours replace them.
+- Any component that reads TanStack table state while rendering (selection, visibility)
+  starts with `"use no memo"`: the table object keeps its identity, so React Compiler would
+  otherwise memoize stale UI.
+- Reference: `feature/dashboard/customers/` (columns in `ui/components/table/`, query
+  logic and CSV export in `logic/` with tests).
 
 ## Forms
 
