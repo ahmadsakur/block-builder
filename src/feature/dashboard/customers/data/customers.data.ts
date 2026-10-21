@@ -1,4 +1,5 @@
 import type { SortRule } from "@/lib/list-query";
+import { customerMrr } from "../logic/customers.logic";
 import type {
   Customer,
   CustomerPlan,
@@ -57,13 +58,6 @@ const STATUSES: CustomerStatus[] = [
   "trial",
 ];
 
-const SEAT_PRICE: Record<CustomerPlan, number> = {
-  Enterprise: 45,
-  Free: 0,
-  Pro: 12,
-  Team: 24,
-};
-
 export const CUSTOMERS: Customer[] = REGIONS.flatMap((region, regionIndex) =>
   COMPANIES.map(([name, domain], companyIndex) => {
     const index = regionIndex * COMPANIES.length + companyIndex;
@@ -77,10 +71,7 @@ export const CUSTOMERS: Customer[] = REGIONS.flatMap((region, regionIndex) =>
       company: `${name}${region}`,
       email: `billing@${subdomain ? `${subdomain}.` : ""}${domain}`,
       id: `cus_${(1_042 + index * 37).toString(36)}`,
-      mrr:
-        status === "churned" || status === "trial"
-          ? 0
-          : seats * SEAT_PRICE[plan],
+      mrr: customerMrr({ plan, seats, status }),
       plan,
       seats,
       signedUp: `${index % 3 === 0 ? 2024 : 2025}-${month}-${day}`,

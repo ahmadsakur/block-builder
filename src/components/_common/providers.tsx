@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { ThemeProvider } from "next-themes";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import type { ReactNode } from "react";
+import { Toaster } from "@/components/_ui/sonner";
 import { TooltipProvider } from "@/components/_ui/tooltip";
 import { LinkProvider } from "@/components/dashboardblocks/link";
 import { getQueryClient } from "@/lib/query-client";
@@ -20,7 +21,10 @@ export default function Providers({ children }: { children: ReactNode }) {
       <NuqsAdapter>
         <QueryClientProvider client={getQueryClient()}>
           <LinkProvider component={NextLink}>
-            <TooltipProvider>{children}</TooltipProvider>
+            <TooltipProvider>
+              {children}
+              <Toaster />
+            </TooltipProvider>
           </LinkProvider>
         </QueryClientProvider>
       </NuqsAdapter>

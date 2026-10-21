@@ -28,6 +28,7 @@ import {
   planOptions,
   statusOptions,
 } from "./customer-columns";
+import { CustomerActionsProvider } from "./row-actions";
 
 const NO_ROWS: Customer[] = [];
 
@@ -48,6 +49,8 @@ type CustomersTableProps = {
   busy: boolean;
   state: ServerTableState;
   onStateChange: (patch: Partial<ServerTableState>) => void;
+  onEdit: (customer: Customer) => void;
+  onDelete: (customer: Customer) => void;
 };
 
 export default function CustomersTable({
@@ -56,6 +59,8 @@ export default function CustomersTable({
   busy,
   state,
   onStateChange,
+  onEdit,
+  onDelete,
 }: CustomersTableProps) {
   "use no memo";
   const table = useServerDataTable({
@@ -118,13 +123,15 @@ export default function CustomersTable({
             </>
           )}
         </div>
-        <BlockBusy busy={busy} label="Updating customers">
-          <DataTableContent
-            caption="Customers"
-            loadingRows={state.pageSize}
-            table={table}
-          />
-        </BlockBusy>
+        <CustomerActionsProvider value={{ onDelete, onEdit }}>
+          <BlockBusy busy={busy} label="Updating customers">
+            <DataTableContent
+              caption="Customers"
+              loadingRows={state.pageSize}
+              table={table}
+            />
+          </BlockBusy>
+        </CustomerActionsProvider>
         <DataTablePagination
           className="border-t pt-3"
           pageSizeOptions={[10, 20, 50]}

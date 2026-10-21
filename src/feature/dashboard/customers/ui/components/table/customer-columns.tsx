@@ -11,19 +11,18 @@ import {
 import { formatCurrency } from "@/lib/dashboardblocks/format";
 import {
   CUSTOMER_PLANS,
+  CUSTOMER_STATUS_LABEL,
   CUSTOMER_STATUSES,
   type Customer,
   type CustomerStatus,
 } from "../../../types/customers.types";
+import RowActions from "./row-actions";
 
-const STATUS_CONFIG: Record<
-  CustomerStatus,
-  { label: string; tone: StatusTone }
-> = {
-  active: { label: "Active", tone: "good" },
-  churned: { label: "Churned", tone: "neutral" },
-  "past-due": { label: "Past due", tone: "bad" },
-  trial: { label: "Trial", tone: "info" },
+const STATUS_TONE: Record<CustomerStatus, StatusTone> = {
+  active: "good",
+  churned: "neutral",
+  "past-due": "bad",
+  trial: "info",
 };
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
@@ -38,7 +37,7 @@ export function statusOptions(
 ): FilterOption[] {
   return CUSTOMER_STATUSES.map((status) => ({
     count: counts[status] ?? 0,
-    label: STATUS_CONFIG[status].label,
+    label: CUSTOMER_STATUS_LABEL[status],
     value: status,
   }));
 }
@@ -73,10 +72,11 @@ export const CUSTOMER_COLUMNS = columnHelper.columns([
     meta: { primary: true, truncate: true },
   }),
   columnHelper.accessor("status", {
-    cell: ({ getValue }) => {
-      const status = STATUS_CONFIG[getValue()];
-      return <StatusLabel tone={status.tone}>{status.label}</StatusLabel>;
-    },
+    cell: ({ getValue }) => (
+      <StatusLabel tone={STATUS_TONE[getValue()]}>
+        {CUSTOMER_STATUS_LABEL[getValue()]}
+      </StatusLabel>
+    ),
     enableSorting: false,
     header: "Status",
     meta: { cellClassName: "whitespace-nowrap" },
@@ -105,5 +105,12 @@ export const CUSTOMER_COLUMNS = columnHelper.columns([
     header: "Signed up",
     meta: { align: "end" },
     sortDescFirst: true,
+  }),
+  columnHelper.display({
+    cell: ({ row }) => <RowActions customer={row.original} />,
+    enableHiding: false,
+    header: () => <span className="sr-only">Actions</span>,
+    id: "actions",
+    meta: { align: "end", cellClassName: "w-12", label: "Actions" },
   }),
 ]);

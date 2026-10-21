@@ -162,17 +162,43 @@ so it works the same on any backend.
 - Any component that reads TanStack table state while rendering (selection, visibility)
   starts with `"use no memo"`: the table object keeps its identity, so React Compiler would
   otherwise memoize stale UI.
+- Row actions: a last display column (`id: "actions"`) renders a `…` menu with Edit and a
+  destructive Delete. Columns stay module-level constants; the row menu gets its callbacks
+  from a small context the table provides (`ui/components/table/row-actions.tsx`).
 - Reference: `feature/dashboard/customers/` (columns in `ui/components/table/`, query
   logic and CSV export in `logic/` with tests).
 
 ## Forms
 
 React Hook Form + zod + shadcn `Field`. The zod schema lives in `types/` and its inferred
-type is the form's input type. Text inputs use `components/_common/form/text-field.tsx`
-(label, input, description and error in one, wired through `Controller`). A form component
-is dumb: it validates and calls `onSubmit(values)`; its container runs the mutation and
-passes `pending` and `error` back down. Server errors render as a form-level `FieldError`.
-See `feature/auth/sign-in/` and its form test.
+type is the form's input type. Fields come from `components/_common/form/`: `TextField`
+(text, email, password, number) and `SelectField`, each label + control + description +
+error wired through `Controller`. A form component is dumb: it validates and calls
+`onSubmit(values)`; its container runs the mutation and passes `pending` and `error` back
+down. Server errors render as a form-level `FieldError`. See `feature/auth/sign-in/`.
+
+### Create and edit: one `<feature>-form.tsx`
+
+- One form for both: `customer-form.tsx` takes `customer?: Customer`. No record means
+  create (empty defaults), a record means edit (defaults from the record). Never pass a
+  separate `mode` prop.
+- Copy lives in one function next to the form (`customerFormCopy(customer?)`): wrapper
+  title and description, CTA and pending label for both modes.
+- Remount per target: render it as `<CustomerForm key={customer?.id ?? "new"} />`. React
+  Hook Form only reads `defaultValues` on mount.
+- Track `{ open, customer }`, not just the record. Closing sets `open: false` and keeps the
+  record, so the wrapper's exit animation doesn't flash create-mode labels. Call the
+  mutation's `reset()` when opening, so an old error doesn't show.
+- The container chooses: `id ? updateX(id, input) : createX(input)` in one `useSaveX`
+  mutation; the service keeps separate `createX` and `updateX`, since backends differ.
+- Wrapper by size: up to ~4 short fields → `Dialog`; more, or anything that may grow →
+  `Sheet` from the right (keeps the list visible).
+- Delete always confirms in an `AlertDialog` that names the record and says it can't be
+  undone. The confirm button is a plain destructive `Button` that waits for the mutation
+  (`AlertDialogAction` would close immediately).
+- Feedback: `toast.success(...)` from `sonner` after a save or delete; errors stay inline.
+- Reference: `feature/dashboard/customers/ui/components/form/` and
+  `delete-customer-dialog.tsx`, with form and container tests.
 
 ## Naming
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useId } from "react";
+import { type ChangeEvent, type ReactNode, useId } from "react";
 import {
   type Control,
   Controller,
@@ -19,7 +19,7 @@ type TextFieldProps<T extends FieldValues> = {
   control: Control<T>;
   name: Path<T>;
   label: string;
-  type?: "text" | "email" | "password";
+  type?: "text" | "email" | "password" | "number";
   autoComplete?: string;
   description?: ReactNode;
   labelAction?: ReactNode;
@@ -48,6 +48,12 @@ export default function TextField<T extends FieldValues>({
           </div>
           <Input
             {...field}
+            {...(type === "number" && {
+              inputMode: "numeric" as const,
+              onChange: (event: ChangeEvent<HTMLInputElement>) =>
+                field.onChange(event.target.valueAsNumber),
+              value: Number.isNaN(field.value) ? "" : field.value,
+            })}
             id={id}
             type={type}
             autoComplete={autoComplete}

@@ -1,5 +1,37 @@
 import type { ListResult, SortRule } from "@/lib/list-query";
-import type { Customer, CustomerListQuery } from "../types/customers.types";
+import {
+  type Customer,
+  type CustomerInput,
+  type CustomerListQuery,
+  SEAT_PRICE,
+} from "../types/customers.types";
+
+export function customerMrr({
+  plan,
+  seats,
+  status,
+}: Pick<Customer, "plan" | "seats" | "status">) {
+  return status === "churned" || status === "trial"
+    ? 0
+    : seats * SEAT_PRICE[plan];
+}
+
+export function isEmailTaken(
+  customers: Customer[],
+  email: string,
+  exceptId?: string,
+) {
+  const wanted = email.trim().toLowerCase();
+  return customers.some(
+    (customer) =>
+      customer.id !== exceptId && customer.email.toLowerCase() === wanted,
+  );
+}
+
+export function toCustomerInput(customer: Customer): CustomerInput {
+  const { company, email, plan, seats, status } = customer;
+  return { company, email, plan, seats, status };
+}
 
 const SORTABLE: (keyof Customer)[] = [
   "company",

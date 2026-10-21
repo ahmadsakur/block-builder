@@ -45,3 +45,48 @@ test("search from the URL narrows the list", async () => {
   ).toBeInTheDocument();
   expect(screen.getByText("Northwind EU")).toBeInTheDocument();
 });
+
+test("edit opens the sheet prefilled and saves", async () => {
+  const user = userEvent.setup();
+  renderCustomers("?q=northwind");
+  await screen.findByText("5 accounts match.", {}, LOAD_TIMEOUT);
+
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Northwind EU" }),
+  );
+  await user.click(await screen.findByRole("menuitem", { name: "Edit" }));
+
+  expect(
+    await screen.findByRole("heading", { name: "Edit Northwind EU" }),
+  ).toBeInTheDocument();
+  const company = screen.getByLabelText("Company");
+  expect(company).toHaveValue("Northwind EU");
+
+  await user.clear(company);
+  await user.type(company, "Northwind Europe");
+  await user.click(screen.getByRole("button", { name: "Save changes" }));
+
+  expect(
+    await screen.findByText("Northwind Europe", {}, LOAD_TIMEOUT),
+  ).toBeInTheDocument();
+});
+
+test("delete asks for confirmation, then removes the row", async () => {
+  const user = userEvent.setup();
+  renderCustomers("?q=northwind");
+  await screen.findByText("5 accounts match.", {}, LOAD_TIMEOUT);
+
+  await user.click(
+    screen.getByRole("button", { name: "Actions for Northwind APAC" }),
+  );
+  await user.click(await screen.findByRole("menuitem", { name: "Delete" }));
+
+  expect(
+    await screen.findByRole("alertdialog", { name: "Delete Northwind APAC?" }),
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "Delete customer" }));
+
+  expect(
+    await screen.findByText("4 accounts match.", {}, LOAD_TIMEOUT),
+  ).toBeInTheDocument();
+});

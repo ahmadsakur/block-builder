@@ -1,16 +1,27 @@
 "use client";
 
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { parseAsArrayOf, parseAsStringLiteral, useQueryStates } from "nuqs";
 import { LIST_URL_KEYS, listQueryParsers } from "@/lib/list-query";
 import {
   CUSTOMERS_DEFAULT_SORT,
   CUSTOMERS_PAGE_SIZE,
 } from "../data/customers.data";
-import { listCustomers } from "../service/customers.service";
+import {
+  createCustomer,
+  deleteCustomer,
+  listCustomers,
+  updateCustomer,
+} from "../service/customers.service";
 import {
   CUSTOMER_PLANS,
   CUSTOMER_STATUSES,
+  type CustomerInput,
   type CustomerListQuery,
 } from "../types/customers.types";
 
@@ -44,4 +55,23 @@ export function useCustomersQuery(query: CustomerListQuery) {
     queryFn: () => listCustomers(query),
     placeholderData: keepPreviousData,
   });
+}
+
+function useInvalidateCustomers() {
+  const client = useQueryClient();
+  return () => client.invalidateQueries({ queryKey: customerKeys.all });
+}
+
+export function useSaveCustomer() {
+  const invalidate = useInvalidateCustomers();
+  return useMutation({
+    mutationFn: ({ id, input }: { id?: string; input: CustomerInput }) =>
+      id ? updateCustomer(id, input) : createCustomer(input),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteCustomer() {
+  const invalidate = useInvalidateCustomers();
+  return useMutation({ mutationFn: deleteCustomer, onSuccess: invalidate });
 }
