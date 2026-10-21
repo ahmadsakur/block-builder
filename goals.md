@@ -49,14 +49,14 @@ How projects get created from the template (CLI, flags like `--supabase`, giget,
 
 ## Plan for `base`
 
-Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 5.**
+Each step = one commit on `base`. Stop after each step, walk the owner through what you did, and wait for approval before the next. **Next: step 6.**
 
 1. ✅ Tooling: update Biome, add Vitest, zod env validation at startup, `CLAUDE.md` pointing to `AGENTS.md`, git + Claude Code hooks.
 2. ✅ shadcn init + design tokens (light/dark) + `/tokens` preview.
 2b. ✅ Dashboard shell (`/dashboard` layout: sidebar + header + content) and `/dashboard/home` with the dashboardblocks Store dashboard; tokens matched to dashboardblocks.
 3. ✅ Folder layout + frontend conventions docs (`.agents/domain-structure.md`; home dashboard containerized as the reference domain).
 4. ✅ Mock data layer: TanStack Query + nuqs, `query/` + `service/` per feature, home dashboard wired through it.
-5. App shell: sidebar, topbar. (Started in 2b; finish with real nav, search, notifications.)
+5. ✅ App shell: sidebar, topbar, ⌘K command menu, notifications (feature via header slot, optimistic mark-as-read), 404 + error boundary pages.
 6. Auth screens.
 7. Datatable + one example feature.
 8. Settings + form pattern.

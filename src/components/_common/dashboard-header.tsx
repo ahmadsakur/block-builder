@@ -1,19 +1,21 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { type ReactNode, useState } from "react";
+import AppCommandMenu from "@/components/_common/command-menu";
 import ThemeToggle from "@/components/_common/theme-toggle";
 import { Separator } from "@/components/_ui/separator";
 import { SidebarTrigger } from "@/components/_ui/sidebar";
 import {
   AppBreadcrumbs,
   AppHeader,
-  NotificationsButton,
   SearchButton,
 } from "@/components/dashboardblocks/app-shell";
 import { breadcrumbsFor } from "./sidebar/sidebar-nav";
 
-export default function DashboardHeader() {
+export default function DashboardHeader({ actions }: { actions?: ReactNode }) {
   const pathname = usePathname();
+  const [searchOpen, setSearchOpen] = useState(false);
 
   return (
     <AppHeader>
@@ -24,10 +26,11 @@ export default function DashboardHeader() {
       />
       <AppBreadcrumbs items={breadcrumbsFor(pathname)} />
       <div className="ml-auto flex items-center gap-2">
-        <SearchButton onOpen={() => {}} />
-        <NotificationsButton count={3} onClick={() => {}} />
+        <SearchButton onOpen={() => setSearchOpen(true)} />
+        {actions}
         <ThemeToggle />
       </div>
+      <AppCommandMenu open={searchOpen} onOpenChange={setSearchOpen} />
     </AppHeader>
   );
 }

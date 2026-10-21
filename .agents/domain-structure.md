@@ -153,7 +153,9 @@ app/  ->  feature/  ->  components/, lib/, hooks/
 - A domain doesn't import from a sibling domain. If two need the same thing, promote it
   to a shared root (`components/_common`, `lib/`) or a parent `_shared/`.
 - **`components/`, `lib/` and `hooks/` never import from `feature/`.** A shared component
-  that needs domain data receives it as props.
+  that needs domain data receives it as props. When the shell needs a whole feature
+  widget, the route layout passes it in as a slot: `app/dashboard/layout.tsx` renders
+  `<DashboardShell headerActions={<NotificationBellContainer />}>`.
 
 ## Checklist for a new page or domain
 

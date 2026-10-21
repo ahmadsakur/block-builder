@@ -1,9 +1,7 @@
 "use client";
 
-import {
-  BlockBusy,
-  type BlockStatus,
-} from "@/components/dashboardblocks/block-state";
+import { BlockBusy } from "@/components/dashboardblocks/block-state";
+import { queryStatus } from "@/lib/query-status";
 import { TODAY } from "../data/home.data";
 import {
   useLowStockQuery,
@@ -19,20 +17,11 @@ import MonthForecast from "./components/revenue/month-forecast";
 import RevenueChart from "./components/revenue/revenue-chart";
 import ShopperStats from "./components/stats/shopper-stats";
 
-function statusOf(query: {
-  isError: boolean;
-  isPending: boolean;
-}): BlockStatus | undefined {
-  if (query.isError) return "error";
-  if (query.isPending) return "loading";
-  return undefined;
-}
-
 export default function HomeContainer() {
   const [query, setQuery] = useStoreQueryParams();
   const overview = useStoreOverviewQuery(query);
   const lowStock = useLowStockQuery();
-  const status = statusOf(overview);
+  const status = queryStatus(overview);
   const data = overview.data;
 
   return (
@@ -74,7 +63,7 @@ export default function HomeContainer() {
         <div className="@4xl:col-span-2">
           <LowStockList
             items={lowStock.data ?? []}
-            status={statusOf(lowStock)}
+            status={queryStatus(lowStock)}
           />
         </div>
         <ChannelBreakdown
