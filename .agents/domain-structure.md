@@ -31,6 +31,10 @@ app/dashboard/home/page.tsx     ->  feature/dashboard/home/
 app/dashboard/billing/page.tsx  ->  feature/dashboard/billing/
 ```
 
+One exception: `app/dashboard/profile/` renders `feature/auth/profile/`. The profile
+edits the signed-in user, so it lives beside the auth screens and shares
+`auth/_shared/` (session, schemas, service) instead of importing a sibling domain.
+
 A `page.tsx` renders a container and nothing else of substance:
 
 ```tsx
@@ -148,8 +152,11 @@ so it works the same on any backend.
   before it reaches the query (`hooks/use-debounced-value.ts`).
 - Table: `components/_common/data-table/use-server-data-table.ts` binds that state to
   dashboardblocks' `useDataTable` in server mode; render rows with `DataTableContent` and
-  `DataTablePagination`. Give the block state only `loading`/`error`, so an empty result
-  shows "No rows match your filters" with a working Clear button.
+  `DataTablePagination`. Give the block state only `loading`/`error`. Pass `empty` to
+  `DataTableContent`: an `EmptyState` with a create action when the list has no records
+  at all (`total === 0`, nothing filtered), otherwise a no-match `EmptyState` whose Clear
+  resets every filter key, the search and the page. On `error`, swap the table for an error
+  `EmptyState` with Try again (`refetch()`) and hide the pagination.
 - Toolbar, always in this order: `ColumnMenu` on the left; on the right
   `<FilterMenu>…` then `DataTableReset` then `TableSearch`. All three live in
   `components/_common/data-table/`. `TableSearch` is the input with the search icon inside.

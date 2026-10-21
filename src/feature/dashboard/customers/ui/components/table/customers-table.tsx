@@ -1,6 +1,13 @@
 "use client";
 
-import { DownloadIcon } from "lucide-react";
+import {
+  CloudAlertIcon,
+  DownloadIcon,
+  PlusIcon,
+  RotateCwIcon,
+  SearchXIcon,
+  UsersIcon,
+} from "lucide-react";
 import ColumnMenu from "@/components/_common/data-table/column-menu";
 import FilterMenu from "@/components/_common/data-table/filter-menu";
 import TableSearch from "@/components/_common/data-table/table-search";
@@ -8,6 +15,7 @@ import {
   type ServerTableState,
   useServerDataTable,
 } from "@/components/_common/data-table/use-server-data-table";
+import EmptyState from "@/components/_common/empty-state";
 import { Button } from "@/components/_ui/button";
 import {
   BlockBusy,
@@ -51,6 +59,8 @@ type CustomersTableProps = {
   onStateChange: (patch: Partial<ServerTableState>) => void;
   onEdit: (customer: Customer) => void;
   onDelete: (customer: Customer) => void;
+  onCreate: () => void;
+  onRetry: () => void;
 };
 
 export default function CustomersTable({
@@ -61,6 +71,8 @@ export default function CustomersTable({
   onStateChange,
   onEdit,
   onDelete,
+  onCreate,
+  onRetry,
 }: CustomersTableProps) {
   "use no memo";
   const table = useServerDataTable({
@@ -74,6 +86,21 @@ export default function CustomersTable({
   });
   const selected = table.getSelectedRowModel().rows.map((row) => row.original);
   const unavailable = status !== undefined;
+
+  const filtered =
+    state.search.length > 0 ||
+    Object.values(state.filters).some((value) => value.length > 0);
+
+  const noCustomers = !filtered && result?.total === 0;
+
+  const clearFilters = () =>
+    onStateChange({
+      filters: Object.fromEntries(
+        Object.keys(state.filters).map((id) => [id, []]),
+      ),
+      page: 1,
+      search: "",
+    });
 
   const setFilter = (id: string, value: string[]) =>
     onStateChange({ filters: { ...state.filters, [id]: value }, page: 1 });
@@ -124,19 +151,65 @@ export default function CustomersTable({
           )}
         </div>
         <CustomerActionsProvider value={{ onDelete, onEdit }}>
-          <BlockBusy busy={busy} label="Updating customers">
-            <DataTableContent
-              caption="Customers"
-              loadingRows={state.pageSize}
-              table={table}
+          {status === "error" ? (
+            <EmptyState
+              bordered
+              tone="error"
+              icon={<CloudAlertIcon />}
+              title="Customers didn't load"
+              description="Something went wrong on our side. Your data is safe; try again in a moment."
+              action={
+                <Button variant="outline" onClick={onRetry}>
+                  <RotateCwIcon />
+                  Try again
+                </Button>
+              }
             />
-          </BlockBusy>
+          ) : (
+            <BlockBusy busy={busy} label="Updating customers">
+              <DataTableContent
+                caption="Customers"
+                loadingRows={state.pageSize}
+                table={table}
+                empty={
+                  !noCustomers ? (
+                    <EmptyState
+                      className="text-foreground"
+                      icon={<SearchXIcon />}
+                      title="No customers match"
+                      description="Try a different search, or clear the filters to see every account."
+                      action={
+                        <Button variant="outline" onClick={clearFilters}>
+                          Clear filters
+                        </Button>
+                      }
+                    />
+                  ) : (
+                    <EmptyState
+                      className="text-foreground"
+                      icon={<UsersIcon />}
+                      title="No customers yet"
+                      description="Add your first account to start tracking plans, seats and revenue."
+                      action={
+                        <Button onClick={onCreate}>
+                          <PlusIcon />
+                          New customer
+                        </Button>
+                      }
+                    />
+                  )
+                }
+              />
+            </BlockBusy>
+          )}
         </CustomerActionsProvider>
-        <DataTablePagination
-          className="border-t pt-3"
-          pageSizeOptions={[10, 20, 50]}
-          table={table}
-        />
+        {status !== "error" && (
+          <DataTablePagination
+            className="border-t pt-3"
+            pageSizeOptions={[10, 20, 50]}
+            table={table}
+          />
+        )}
       </section>
     </BlockStateProvider>
   );

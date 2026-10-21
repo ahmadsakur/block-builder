@@ -21,6 +21,7 @@ export default function NotificationBellContainer() {
       status={queryStatus(notifications)}
       onOpen={(id) => markRead.mutate([id])}
       onMarkAllRead={() => markRead.mutate(unreadIds(list))}
+      onRetry={() => notifications.refetch()}
     />
   );
 }

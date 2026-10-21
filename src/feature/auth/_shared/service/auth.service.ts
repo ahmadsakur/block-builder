@@ -1,7 +1,10 @@
 import { delay } from "@/lib/delay";
 import { DEMO_USER, TAKEN_EMAIL, WRONG_PASSWORD } from "../data/auth.data";
 import type {
+  AuthUser,
+  ChangePasswordInput,
   ForgotPasswordInput,
+  ProfileInput,
   Session,
   SignInInput,
   SignUpInput,
@@ -52,5 +55,36 @@ export async function resetPassword(_input: {
 
 export async function signOut(): Promise<void> {
   await delay(MOCK_LATENCY_MS);
+  session = null;
+}
+
+function currentUser(): AuthUser {
+  if (!session) throw new Error("You're signed out. Sign in again.");
+  return session.user;
+}
+
+export async function updateProfile(input: ProfileInput): Promise<Session> {
+  await delay(MOCK_LATENCY_MS);
+  const user = currentUser();
+  if (input.email === TAKEN_EMAIL) {
+    throw new Error("An account with this email already exists.");
+  }
+  session = { user: { ...user, ...input } };
+  return session;
+}
+
+export async function changePassword({
+  currentPassword,
+}: ChangePasswordInput): Promise<void> {
+  await delay(MOCK_LATENCY_MS);
+  currentUser();
+  if (currentPassword === WRONG_PASSWORD) {
+    throw new Error("Your current password is incorrect.");
+  }
+}
+
+export async function deleteAccount(): Promise<void> {
+  await delay(MOCK_LATENCY_MS);
+  currentUser();
   session = null;
 }

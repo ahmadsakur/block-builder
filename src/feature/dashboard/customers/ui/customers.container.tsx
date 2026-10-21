@@ -112,6 +112,8 @@ export default function CustomersContainer() {
         onStateChange={onStateChange}
         onEdit={openEditor}
         onDelete={openDelete}
+        onCreate={() => openEditor()}
+        onRetry={() => customers.refetch()}
       />
       <CustomerSheet
         open={editing.open}

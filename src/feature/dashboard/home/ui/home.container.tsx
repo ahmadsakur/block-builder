@@ -1,5 +1,8 @@
 "use client";
 
+import { CloudAlertIcon, RotateCwIcon } from "lucide-react";
+import EmptyState from "@/components/_common/empty-state";
+import { Button } from "@/components/_ui/button";
 import { BlockBusy } from "@/components/dashboardblocks/block-state";
 import { queryStatus } from "@/lib/query-status";
 import { TODAY } from "../data/home.data";
@@ -32,46 +35,62 @@ export default function HomeContainer() {
         today={TODAY}
         onChange={setQuery}
       />
-      <BlockBusy
-        busy={overview.isPlaceholderData}
-        label="Updating the dashboard"
-        className="grid gap-x-8 gap-y-12 @4xl:grid-cols-3"
-      >
-        <div className="@4xl:col-span-3">
-          <ShopperStats
-            metrics={data?.stats ?? []}
-            comparison={data?.previousLabel ?? "the previous period"}
-            compare={query.compare}
-            status={status}
-          />
-        </div>
-        <div className="@4xl:col-span-2">
-          <RevenueChart
-            data={data?.chart ?? []}
-            description={data?.bestDay ?? ""}
-            currentLabel={data?.rangeLabel ?? ""}
-            previousLabel={data?.previousLabel ?? ""}
-            showPrevious={query.compare}
-            status={status}
-          />
-        </div>
-        <MonthForecast month={data?.month} status={status} />
-        <div className="@4xl:col-span-2">
-          <ProductRevenueTable rows={data?.products ?? []} status={status} />
-        </div>
-        <CheckoutFunnel stages={data?.funnel ?? []} status={status} />
-        <div className="@4xl:col-span-2">
-          <LowStockList
-            items={lowStock.data ?? []}
-            status={queryStatus(lowStock)}
-          />
-        </div>
-        <ChannelBreakdown
-          segments={data?.channels ?? []}
-          summary={data?.channelSummary ?? ""}
-          status={status}
+      {overview.isError && !overview.data ? (
+        <EmptyState
+          bordered
+          tone="error"
+          icon={<CloudAlertIcon />}
+          title="The dashboard didn't load"
+          description="We couldn't reach the store data. Check your connection and try again."
+          action={
+            <Button variant="outline" onClick={() => overview.refetch()}>
+              <RotateCwIcon />
+              Try again
+            </Button>
+          }
         />
-      </BlockBusy>
+      ) : (
+        <BlockBusy
+          busy={overview.isPlaceholderData}
+          label="Updating the dashboard"
+          className="grid gap-x-8 gap-y-12 @4xl:grid-cols-3"
+        >
+          <div className="@4xl:col-span-3">
+            <ShopperStats
+              metrics={data?.stats ?? []}
+              comparison={data?.previousLabel ?? "the previous period"}
+              compare={query.compare}
+              status={status}
+            />
+          </div>
+          <div className="@4xl:col-span-2">
+            <RevenueChart
+              data={data?.chart ?? []}
+              description={data?.bestDay ?? ""}
+              currentLabel={data?.rangeLabel ?? ""}
+              previousLabel={data?.previousLabel ?? ""}
+              showPrevious={query.compare}
+              status={status}
+            />
+          </div>
+          <MonthForecast month={data?.month} status={status} />
+          <div className="@4xl:col-span-2">
+            <ProductRevenueTable rows={data?.products ?? []} status={status} />
+          </div>
+          <CheckoutFunnel stages={data?.funnel ?? []} status={status} />
+          <div className="@4xl:col-span-2">
+            <LowStockList
+              items={lowStock.data ?? []}
+              status={queryStatus(lowStock)}
+            />
+          </div>
+          <ChannelBreakdown
+            segments={data?.channels ?? []}
+            summary={data?.channelSummary ?? ""}
+            status={status}
+          />
+        </BlockBusy>
+      )}
     </div>
   );
 }

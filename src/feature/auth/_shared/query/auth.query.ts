@@ -2,12 +2,15 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  changePassword,
+  deleteAccount,
   getSession,
   requestPasswordReset,
   resetPassword,
   signIn,
   signOut,
   signUp,
+  updateProfile,
 } from "../service/auth.service";
 import type { Session } from "../types/auth.types";
 
@@ -49,4 +52,21 @@ export function useRequestPasswordReset() {
 
 export function useResetPassword() {
   return useMutation({ mutationFn: resetPassword });
+}
+
+export function useUpdateProfile() {
+  const setSession = useSetSession();
+  return useMutation({ mutationFn: updateProfile, onSuccess: setSession });
+}
+
+export function useChangePassword() {
+  return useMutation({ mutationFn: changePassword });
+}
+
+export function useDeleteAccount() {
+  const setSession = useSetSession();
+  return useMutation({
+    mutationFn: deleteAccount,
+    onSuccess: () => setSession(null),
+  });
 }

@@ -1,12 +1,15 @@
 "use client";
 
 import {
+  BellOffIcon,
   CircleCheckIcon,
+  CloudAlertIcon,
   MessageSquareIcon,
   TriangleAlertIcon,
   UserPlusIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import EmptyState from "@/components/_common/empty-state";
 import { Button } from "@/components/_ui/button";
 import type { ActivityTone } from "@/components/dashboardblocks/activity-feed";
 import {
@@ -63,6 +66,7 @@ type NotificationMenuProps = {
   status?: BlockStatus;
   onOpen: (id: string) => void;
   onMarkAllRead: () => void;
+  onRetry: () => void;
 };
 
 export default function NotificationMenu({
@@ -71,6 +75,7 @@ export default function NotificationMenu({
   status,
   onOpen,
   onMarkAllRead,
+  onRetry,
 }: NotificationMenuProps) {
   const state = getBlockState(status, notifications);
   const unread = state
@@ -94,10 +99,31 @@ export default function NotificationMenu({
             )
           }
         />
-        {state && (
+        {state === "loading" && (
           <div className="border-t px-4">
             <BlockStateRows rows={4} />
           </div>
+        )}
+        {state === "empty" && (
+          <EmptyState
+            className="border-t p-8"
+            icon={<BellOffIcon />}
+            title="No notifications"
+            description="Mentions, alerts and team updates will show up here."
+          />
+        )}
+        {state === "error" && (
+          <EmptyState
+            className="border-t p-8"
+            tone="error"
+            icon={<CloudAlertIcon />}
+            title="Notifications didn't load"
+            action={
+              <Button variant="outline" size="sm" onClick={onRetry}>
+                Try again
+              </Button>
+            }
+          />
         )}
         {!state && (
           <NotificationList className="max-h-96 overflow-y-auto border-t">

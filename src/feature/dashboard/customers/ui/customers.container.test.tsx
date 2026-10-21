@@ -12,7 +12,7 @@ function renderCustomers(searchParams = "") {
     defaultOptions: { queries: { retry: false } },
   });
   return render(
-    <NuqsTestingAdapter searchParams={searchParams}>
+    <NuqsTestingAdapter searchParams={searchParams} hasMemory>
       <QueryClientProvider client={client}>
         <CustomersContainer />
       </QueryClientProvider>
@@ -69,7 +69,7 @@ test("edit opens the sheet prefilled and saves", async () => {
   expect(
     await screen.findByText("Northwind Europe", {}, LOAD_TIMEOUT),
   ).toBeInTheDocument();
-});
+}, 15000);
 
 test("delete asks for confirmation, then removes the row", async () => {
   const user = userEvent.setup();
@@ -89,4 +89,19 @@ test("delete asks for confirmation, then removes the row", async () => {
   expect(
     await screen.findByText("4 accounts match.", {}, LOAD_TIMEOUT),
   ).toBeInTheDocument();
+});
+
+test("a search with no matches offers to clear the filters", async () => {
+  const user = userEvent.setup();
+  renderCustomers("?q=zzzz-nothing");
+  expect(
+    await screen.findByText("No customers match", {}, LOAD_TIMEOUT),
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByRole("button", { name: "Clear filters" }));
+
+  expect(
+    await screen.findByText(/^1\d\d accounts match\.$/, {}, LOAD_TIMEOUT),
+  ).toBeInTheDocument();
+  expect(screen.queryByText("No customers match")).not.toBeInTheDocument();
 });

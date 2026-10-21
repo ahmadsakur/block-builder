@@ -8,11 +8,9 @@ import {
   type CommandMenuGroup,
   type CommandMenuItem,
 } from "@/components/dashboardblocks/command-menu";
-import { NAV_SECTIONS } from "./sidebar/sidebar-nav";
+import { ALL_PAGES } from "./sidebar/sidebar-nav";
 
-const PAGE_ITEMS: CommandMenuItem[] = NAV_SECTIONS.flatMap(
-  (section) => section.items,
-).flatMap((item) =>
+const PAGE_ITEMS: CommandMenuItem[] = ALL_PAGES.flatMap((item) =>
   item.href
     ? [
         {
