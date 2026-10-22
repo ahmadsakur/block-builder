@@ -9,4 +9,4 @@ Each recipe states:
 - **Decisions** to ask the owner before applying.
 - **Steps**, then **Verify**.
 
-A recipe that fits a single backend lives on that backend's branch. A recipe that fits several lives here on `base`.
+A recipe that fits a single backend lives on that backend's branch. A recipe that fits several lives here on `main`.
