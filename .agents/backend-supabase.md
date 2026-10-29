@@ -121,7 +121,7 @@ The profile page uploads a photo. Copy this pattern for any per-user file.
 
 ## Day 1 of a real project (the "one step")
 
-From a clean clone of the `supabase` branch:
+From a clean clone of `main`:
 
 ```bash
 pnpm exec supabase login                       # needs a real terminal (not Claude's `!`): browser flow

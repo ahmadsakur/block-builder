@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "bp-boilerplate",
+  title: "block-builder",
   description: "Next.js base frontend",
 };
 

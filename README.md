@@ -1,49 +1,33 @@
-# bp-boilerplate
+# block-builder
 
-Personal Next.js starter for client projects. The frontend is ready (UI, tokens, conventions, mock data); pick a backend at project start and go straight to features.
+Personal Next.js app on Supabase. The frontend is ready (UI, tokens, conventions), auth and profile photos run on Supabase, and data services stay on mock data until the app has its own tables.
 
-Fork-and-forget: a project made from this template owns its code. There is no upgrade path back.
+## Backend
 
-## Branches
+Supabase is the whole backend: Auth, Postgres and Storage. All Supabase configuration lives in git (`supabase/config.toml`, `supabase/migrations/`). Details and the setup checklist: `.agents/backend-supabase.md`.
 
-Each branch is a complete app. Pick one per project.
-
-| Branch | Backend | Setup after copy |
-|---|---|---|
-| `main` | None. Every service returns mock data. | Nothing. |
-| `payload` | Payload CMS inside the Next app, SQLite by default, `/admin` for admins. | Set `PAYLOAD_SECRET`. Dev accounts are seeded on first boot. |
-| `supabase` | Supabase Auth, Postgres and Storage. | Create a Supabase project, fill the keys, link and push migrations. |
-| `vanilla` | A separate HTTP API; Next is frontend only. | Set `API_URL`. Services stay on mocks until the API exists. |
-
-Backend details live on each branch in `.agents/backend-<branch>.md`.
-
-## Start a project
+## Getting started
 
 ```bash
-pnpm dlx degit <owner>/bp-boilerplate#payload my-client-app
-cd my-client-app
-git init
+gh repo clone ahmadsakur/block-builder
+cd block-builder
 pnpm install
 cp .env.example .env.local
 pnpm dev
 ```
 
-Swap `#payload` for the branch you want; no `#` gives `main`. The repo is private, so add `--mode=git` (clones over SSH with your GitHub key).
-
 Then:
 
 1. Fill `.env.local` (comments in `.env.example` say how).
-2. Follow "Day 1" in `.agents/backend-<branch>.md` if the branch has one.
-3. Delete `goals.md`. It describes the template, not your project.
-4. Rename `name` in `package.json`.
+2. Link a Supabase project and push migrations and config: follow "Day 1" in `.agents/backend-supabase.md`.
 
 ## Stack
 
-Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashboardblocks` registry, TanStack Query + Table, nuqs, React Hook Form + zod, Biome, Vitest, lefthook. pnpm only.
+Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashboardblocks` registry, Supabase (`@supabase/ssr`), TanStack Query + Table, nuqs, React Hook Form + zod, Biome, Vitest, lefthook. pnpm only.
 
 ## What is in the box
 
-- Auth screens: sign-in, sign-up, forgot and reset password, profile.
+- Auth screens on Supabase Auth: sign-in, sign-up, forgot and reset password, profile with photo upload.
 - Dashboard shell: sidebar, header, ⌘K menu, notifications, dark mode.
 - Home dashboard and a customers list (server-side table, filters, URL state, create/edit/delete).
 - Skeletons, empty and error states, 404 and error boundary.
@@ -58,11 +42,13 @@ Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashb
 | `pnpm lint:fix` | Biome auto-fix |
 | `pnpm test` | Vitest in watch mode |
 | `pnpm build` | Production build |
+| `pnpm db:push` / `pnpm db:config` | Apply migrations / `config.toml` to the linked Supabase project |
+| `pnpm db:types` | Regenerate `src/lib/supabase/database.types.ts` |
 
 ## Working with agents
 
 `AGENTS.md` (loaded through `CLAUDE.md`) holds the project rules. Folder layout, naming and data flow are in `.agents/domain-structure.md`. Optional layers (an auth library, payments) are recipes in `.agents/addons/`.
 
-## Maintaining the template
+## History
 
-Shared frontend work lands on `main`, then `main` is merged into each backend branch. Backend work stays on its branch. The original create-next-app scaffold is tagged `scaffold`.
+Started from a personal Next.js starter with one branch per backend; this repo keeps the Supabase variant on `main`. The original create-next-app scaffold is tagged `scaffold`.

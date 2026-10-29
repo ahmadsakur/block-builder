@@ -7,7 +7,7 @@ export default function BrandLogo() {
       <BrandMark>
         <GalleryVerticalEndIcon />
       </BrandMark>
-      bp-boilerplate
+      block-builder
     </>
   );
 }
