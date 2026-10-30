@@ -7,7 +7,16 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!node_modules", "!.next", "!dist", "!build", "!public"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/.next",
+      "!**/.turbo",
+      "!**/dist",
+      "!**/build",
+      "!**/public",
+      "!apps/api/drizzle"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -32,7 +41,12 @@
   },
   "overrides": [
     {
-      "includes": ["src/**", "!src/env.ts"],
+      "includes": [
+        "apps/web/src/**",
+        "!apps/web/src/env.ts",
+        "apps/api/src/**",
+        "!apps/api/src/env.ts"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -43,9 +57,9 @@
     },
     {
       "includes": [
-        "src/components/_ui/**",
-        "src/components/dashboardblocks/**",
-        "src/lib/dashboardblocks/**"
+        "apps/web/src/components/_ui/**",
+        "apps/web/src/components/dashboardblocks/**",
+        "apps/web/src/lib/dashboardblocks/**"
       ],
       "linter": {
         "rules": {
@@ -54,6 +68,16 @@
         "domains": {
           "next": "none",
           "react": "none"
+        }
+      }
+    },
+    {
+      "includes": [".claude/hooks/**"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noUndeclaredEnvVars": "off"
+          }
         }
       }
     }

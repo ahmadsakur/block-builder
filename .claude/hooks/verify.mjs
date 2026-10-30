@@ -51,7 +51,10 @@ if (lastGreen === fingerprint) process.exit(0);
 const steps = [
   ["lint", "pnpm -s lint"],
   ["typecheck", "pnpm -s typecheck"],
-  ["test", "pnpm exec vitest run --changed --passWithNoTests"],
+  [
+    "test",
+    "pnpm --filter @block-builder/web exec vitest run --changed --passWithNoTests",
+  ],
 ];
 
 const failures = [];

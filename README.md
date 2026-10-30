@@ -1,10 +1,6 @@
 # block-builder
 
-Personal Next.js app on Supabase. The frontend is ready (UI, tokens, conventions), auth and profile photos run on Supabase, and data services stay on mock data until the app has its own tables.
-
-## Backend
-
-Supabase is the whole backend: Auth, Postgres and Storage. All Supabase configuration lives in git (`supabase/config.toml`, `supabase/migrations/`). Details and the setup checklist: `.agents/backend-supabase.md`.
+Personal app in a pnpm + Turborepo monorepo: a Next.js frontend (`apps/web`) and a Hono API (`apps/api`) with real auth and roles. Data services other than auth still run on mock data.
 
 ## Getting started
 
@@ -12,22 +8,26 @@ Supabase is the whole backend: Auth, Postgres and Storage. All Supabase configur
 gh repo clone ahmadsakur/block-builder
 cd block-builder
 pnpm install
-cp .env.example .env.local
-pnpm dev
+cp apps/web/.env.example apps/web/.env.local
+cp apps/api/.env.example apps/api/.env       # set DATABASE_URL, BETTER_AUTH_SECRET, ROOT_PASSWORD
+podman compose up -d                          # Mailpit: SMTP :1025, inbox http://localhost:8025
+pnpm --filter @block-builder/api db:migrate
+pnpm --filter @block-builder/api db:seed      # creates the root user from ROOT_EMAIL / ROOT_PASSWORD
+pnpm dev                                      # web :3000, api :3001
 ```
 
-Then:
+Comments in each `.env.example` say how to fill it. Sign in as root to land on `/dashboard`; register a new account (verify it from Mailpit) to land on `/app`.
 
-1. Fill `.env.local` (comments in `.env.example` say how).
-2. Link a Supabase project and push migrations and config: follow "Day 1" in `.agents/backend-supabase.md`.
+To prove the built images run: `podman compose --profile app up --build` (own Postgres, migrates and seeds on start), then `podman compose --profile app down -v --rmi all`.
 
 ## Stack
 
-Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashboardblocks` registry, Supabase (`@supabase/ssr`), TanStack Query + Table, nuqs, React Hook Form + zod, Biome, Vitest, lefthook. pnpm only.
+pnpm workspaces + Turborepo. API: Hono on Node, better-auth (email + password, verification, reset, admin roles), Drizzle + Postgres, nodemailer SMTP, local or S3 file storage. Web: Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashboardblocks` registry TanStack Query + Table, nuqs, React Hook Form + zod, Biome, Vitest, lefthook. pnpm only.
 
 ## What is in the box
 
-- Auth screens on Supabase Auth: sign-in, sign-up, forgot and reset password, profile with photo upload.
+- Auth on better-auth: sign-up with email verification, sign-in, forgot and reset password by email, profile with photo upload.
+- Two roles: one `root` (seeded from env) on `/dashboard`, self-registered `user`s on `/app`, same shell with per-role menus.
 - Dashboard shell: sidebar, header, ⌘K menu, notifications, dark mode.
 - Home dashboard and a customers list (server-side table, filters, URL state, create/edit/delete).
 - Skeletons, empty and error states, 404 and error boundary.
@@ -37,13 +37,11 @@ Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashb
 
 | Command | Does |
 |---|---|
-| `pnpm dev` | Dev server on http://localhost:3000 |
+| `pnpm dev` | Web on http://localhost:3000, API on http://localhost:3001 |
 | `pnpm check` | Lint + typecheck + tests. Must pass before work is done. |
 | `pnpm lint:fix` | Biome auto-fix |
 | `pnpm test` | Vitest in watch mode |
 | `pnpm build` | Production build |
-| `pnpm db:push` / `pnpm db:config` | Apply migrations / `config.toml` to the linked Supabase project |
-| `pnpm db:types` | Regenerate `src/lib/supabase/database.types.ts` |
 
 ## Working with agents
 
@@ -51,4 +49,4 @@ Next 16 (App Router, `src/`), React 19, Tailwind 4, shadcn 4 on Base UI, `@dashb
 
 ## History
 
-Started from a personal Next.js starter with one branch per backend; this repo keeps the Supabase variant on `main`. The original create-next-app scaffold is tagged `scaffold`.
+Started from a personal Next.js starter with one branch per backend; this repo kept the Supabase variant on `main` until the move to a monorepo with its own backend. The original create-next-app scaffold is tagged `scaffold`.

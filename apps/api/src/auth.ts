@@ -1,0 +1,59 @@
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { DEFAULT_ROLE } from "@block-builder/shared/auth";
+import { betterAuth } from "better-auth";
+import { admin } from "better-auth/plugins";
+import { adminAc, userAc } from "better-auth/plugins/admin/access";
+import { db } from "./db";
+import { env } from "./env";
+import { avatarKeyFromImage } from "./lib/avatar";
+import { sendEmail } from "./lib/mailer";
+import { storage } from "./lib/storage";
+
+export const auth = betterAuth({
+  baseURL: env.BETTER_AUTH_URL,
+  secret: env.BETTER_AUTH_SECRET,
+  database: drizzleAdapter(db, { provider: "pg" }),
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url }) => {
+      sendEmail({
+        to: user.email,
+        subject: "Reset your password",
+        text: `Open this link to set a new password:\n\n${url}\n\nIf you didn't ask for this, ignore this email.`,
+      });
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    sendOnSignIn: true,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      sendEmail({
+        to: user.email,
+        subject: "Verify your email",
+        text: `Open this link to verify your email:\n\n${url}`,
+      });
+    },
+  },
+  user: {
+    changeEmail: { enabled: true },
+    deleteUser: {
+      enabled: true,
+      beforeDelete: async (user) => {
+        const key = avatarKeyFromImage(user.image);
+        if (key) await storage.delete(key);
+      },
+    },
+  },
+  plugins: [
+    admin({
+      defaultRole: DEFAULT_ROLE,
+      adminRoles: ["root"],
+      roles: { root: adminAc, user: userAc },
+    }),
+  ],
+});
+
+export type AuthSession = typeof auth.$Infer.Session;
