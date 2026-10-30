@@ -1,15 +1,14 @@
-import DashboardShell from "@/components/_common/dashboard-shell";
-import UserMenuContainer from "@/feature/auth/_shared/ui/user-menu.container";
-import NotificationBellContainer from "@/feature/notifications/ui/notification-bell.container";
+import DashboardShell from "@/components/_common/shell/dashboard-shell";
+import { DASHBOARD_NAV } from "@/feature/dashboard/_shared/data/dashboard-nav.data";
+import NotificationBellContainer from "@/feature/dashboard/_shared/ui/notification-bell.container";
 
 export default function DashboardLayout({
   children,
 }: LayoutProps<"/dashboard">) {
   return (
     <DashboardShell
-      area="root"
+      nav={DASHBOARD_NAV}
       headerActions={<NotificationBellContainer />}
-      sidebarFooter={<UserMenuContainer />}
     >
       {children}
     </DashboardShell>

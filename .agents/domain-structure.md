@@ -3,7 +3,7 @@
 Read this before creating a new page, a new domain of work (a feature area such as
 `billing`, `crm`, `projects`), or before pulling anything in from a component registry.
 It defines where code lives, how the layers depend on each other, and how registry
-components become feature code. `feature/dashboard/home` is the reference
+components become feature code. `feature/back-office/home` is the reference
 implementation. Mirror it.
 
 All paths are under `src/`.
@@ -14,10 +14,25 @@ All paths are under `src/`.
 | ------------- | -------------------------------------- | ---- |
 | `app/`        | Routing only                           | Pages, layouts, `metadata`, route guards (`notFound`, `redirect`), SEO files, `globals.css`. Pages stay thin: they import a container from `feature/` and attach metadata. No feature UI or logic inline. |
 | `feature/`    | Domain code                            | Everything specific to one feature: its UI, types, data, logic, state. One folder per domain, nested to mirror the route tree. |
-| `components/` | Shared, domain-agnostic building blocks | `_ui/` (shadcn primitives), `dashboardblocks/` (dashboardblocks base parts), `_common/` (our shared composites: dashboard shell, sidebar, header, theme toggle, providers). Must not depend on `feature/`. |
+| `components/` | Shared, domain-agnostic building blocks | `_ui/` (shadcn primitives), `dashboardblocks/` (dashboardblocks base parts), `_common/` (our shared composites: `shell/` with sidebar, header, ⌘K and user menu; data table, form fields, skeletons, error pages, theme toggle, providers). Must not depend on `feature/`. |
 
-Other shared roots: `lib/` (generic utilities: `cn`), `hooks/` (shared hooks), `env.ts`
-(typed env, see AGENTS.md).
+Other shared roots: `lib/` (generic utilities: `cn`, and `lib/auth/` for the session every
+area reads), `hooks/` (shared hooks), `env.ts` (typed env, see AGENTS.md).
+
+## Where code goes
+
+Put code at the lowest owner that covers every user of it:
+
+| Used by | Lives in |
+| --- | --- |
+| One domain | that domain |
+| Sibling sub-domains (`auth/sign-in`, `auth/sign-up`) | the parent's `_shared/` |
+| A whole area (its nav data, header widgets) | the area's `_shared/` (`feature/back-office/_shared/`) |
+| Every area, domain-agnostic (shell, table kit, session) | `components/_common/`, `lib/`, `hooks/` |
+| Web and API (schemas, roles, avatar limits) | `packages/shared` |
+
+Domains never share code with each other. When two areas need the same screen (profile,
+notifications), each area owns its own copy and the copies may drift.
 
 ## Mapping routes to domains
 
@@ -25,21 +40,21 @@ Other shared roots: `lib/` (generic utilities: `cn`), `hooks/` (shared hooks), `
 the same name and nesting.
 
 ```
-app/page.tsx                    ->  feature/landing/
-app/tokens/page.tsx             ->  feature/tokens/
-app/dashboard/home/page.tsx     ->  feature/dashboard/home/
-app/dashboard/billing/page.tsx  ->  feature/dashboard/billing/
+app/(landing)/page.tsx            ->  feature/landing/
+app/(auth)/sign-in/page.tsx       ->  feature/auth/sign-in/
+app/back-office/home/page.tsx     ->  feature/back-office/home/
+app/back-office/profile/page.tsx  ->  feature/back-office/profile/
+app/dashboard/profile/page.tsx    ->  feature/dashboard/profile/
 ```
 
-One exception: `app/dashboard/profile/` renders `feature/auth/profile/`. The profile
-edits the signed-in user, so it lives beside the auth screens and shares
-`auth/_shared/` (session, schemas, service) instead of importing a sibling domain.
+`app/` and `feature/` hold four roots only: `auth`, `landing`, `back-office` (root role)
+and `dashboard` (user role). Route groups (`(auth)`, `(landing)`) keep the URL clean.
 
 A `page.tsx` renders a container and nothing else of substance:
 
 ```tsx
 import type { Metadata } from "next";
-import HomeContainer from "@/feature/dashboard/home/ui/home.container";
+import HomeContainer from "@/feature/back-office/home/ui/home.container";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -53,7 +68,7 @@ export default function DashboardHomePage() {
 A domain folder is split by functionality. Create only the layers the domain needs.
 
 ```
-feature/dashboard/<domain>/
+feature/<area>/<domain>/
   ui/
     <domain>.container.tsx        entry component the route renders; wires query hooks to components
     components/<part>/*.tsx       dumb feature components: data in via props, events out
@@ -101,7 +116,7 @@ ui/  ->  query/  ->  service/
 
 Map query state to block status with `isPending` → `"loading"` and `isError` →
 `"error"`, and dim on refetch with `BlockBusy busy={query.isPlaceholderData}`. See
-`feature/dashboard/home/ui/home.container.tsx` and its test for the full pattern.
+`feature/back-office/home/ui/home.container.tsx` and its test for the full pattern.
 
 ## Registry components (shadcn, dashboardblocks)
 
@@ -172,7 +187,7 @@ so it works the same on any backend.
 - Row actions: a last display column (`id: "actions"`) renders a `…` menu with Edit and a
   destructive Delete. Columns stay module-level constants; the row menu gets its callbacks
   from a small context the table provides (`ui/components/table/row-actions.tsx`).
-- Reference: `feature/dashboard/customers/` (columns in `ui/components/table/`, query
+- Reference: `feature/back-office/customers/` (columns in `ui/components/table/`, query
   logic and CSV export in `logic/` with tests).
 
 ## Forms
@@ -204,7 +219,7 @@ down. Server errors render as a form-level `FieldError`. See `feature/auth/sign-
   undone. The confirm button is a plain destructive `Button` that waits for the mutation
   (`AlertDialogAction` would close immediately).
 - Feedback: `toast.success(...)` from `sonner` after a save or delete; errors stay inline.
-- Reference: `feature/dashboard/customers/ui/components/form/` and
+- Reference: `feature/back-office/customers/ui/components/form/` and
   `delete-customer-dialog.tsx`, with form and container tests.
 
 ## Naming
@@ -221,7 +236,7 @@ down. Server errors render as a form-level `FieldError`. See `feature/auth/sign-
 
 ## Imports
 
-- Domain code from outside the domain: `@/feature/dashboard/<domain>/...`.
+- Domain code from outside the domain: `@/feature/<area>/<domain>/...`.
 - Shared code: `@/components/...`, `@/lib/...`, `@/hooks/...`.
 - Within a domain, relative imports between its own files (`../../../logic/home.logic`).
 - Types from `types/*.types.ts`, values from `data/*.data.ts`; don't mix them in one module.
@@ -238,8 +253,9 @@ app/  ->  feature/  ->  components/, lib/, hooks/
   to a shared root (`components/_common`, `lib/`) or a parent `_shared/`.
 - **`components/`, `lib/` and `hooks/` never import from `feature/`.** A shared component
   that needs domain data receives it as props. When the shell needs a whole feature
-  widget, the route layout passes it in as a slot: `app/dashboard/layout.tsx` fills
-  `DashboardShell`'s `headerActions` (notifications bell) and `sidebarFooter` (user menu).
+  widget, the route layout passes it in as a slot: `app/back-office/layout.tsx` fills
+  `DashboardShell`'s `nav` (menu data) and `headerActions` (notifications bell), both from
+  `feature/back-office/_shared/`.
 
 ## Checklist for a new page or domain
 
@@ -247,7 +263,7 @@ app/  ->  feature/  ->  components/, lib/, hooks/
 2. Add `ui/<name>.container.tsx`. If the page shows data, add `service/` (mock) and
    `query/` and wire them through the container.
 3. Add the route under `app/`: a thin `page.tsx` that renders the container.
-4. Add the page to the sidebar nav data (`components/_common/sidebar/sidebar-nav.tsx`) if it
+4. Add the page to the area nav data (`feature/<area>/_shared/data/<area>-nav.data.tsx`) if it
    belongs in the dashboard.
 5. Types in `types/`, data in `data/`, pure functions in `logic/` (with tests), state in
    `store/`. Nothing domain-specific in shared roots.

@@ -1,10 +1,5 @@
 import { describe, expect, test } from "vitest";
-import {
-  avatarImageUrl,
-  avatarKeyFromImage,
-  isAvatarType,
-  newAvatarKey,
-} from "./avatar";
+import { avatarImageUrl, avatarKeyFromImage, newAvatarKey } from "./avatar";
 
 describe("avatar keys", () => {
   test("round-trips a key through its public URL", () => {
@@ -16,7 +11,6 @@ describe("avatar keys", () => {
   test("names the file after its type", () => {
     expect(newAvatarKey("user-1", "image/png")).toMatch(/\.png$/);
     expect(newAvatarKey("user-1", "image/jpeg")).toMatch(/\.jpg$/);
-    expect(isAvatarType("image/gif")).toBe(false);
   });
 
   test("ignores images we don't store", () => {

@@ -7,6 +7,7 @@ import { ErrorPageLayout } from "@/components/dashboardblocks/error-pages";
 type ErrorPageProps = {
   error: unknown;
   retry: () => void;
+  home: string;
 };
 
 function errorDigest(error: unknown) {
@@ -16,7 +17,7 @@ function errorDigest(error: unknown) {
   return undefined;
 }
 
-export default function ErrorPage({ error, retry }: ErrorPageProps) {
+export default function ErrorPage({ error, retry, home }: ErrorPageProps) {
   const digest = errorDigest(error);
 
   return (
@@ -35,11 +36,8 @@ export default function ErrorPage({ error, retry }: ErrorPageProps) {
     >
       <div className="flex flex-wrap gap-2">
         <Button onClick={retry}>Try again</Button>
-        <Link
-          href="/dashboard"
-          className={buttonVariants({ variant: "ghost" })}
-        >
-          Go to dashboard
+        <Link href={home} className={buttonVariants({ variant: "ghost" })}>
+          Go home
         </Link>
       </div>
     </ErrorPageLayout>

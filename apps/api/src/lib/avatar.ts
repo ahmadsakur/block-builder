@@ -1,19 +1,15 @@
+import type { AvatarType } from "@block-builder/shared/avatar";
+
 const PREFIX = "avatars/";
 const PUBLIC_PATH = "/api/";
 
-const EXTENSIONS: Record<string, string> = {
+const EXTENSIONS: Record<AvatarType, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
 };
 
-export const AVATAR_MAX_BYTES = 1024 * 1024;
-
-export function isAvatarType(type: string): boolean {
-  return type in EXTENSIONS;
-}
-
-export function newAvatarKey(userId: string, type: string): string {
+export function newAvatarKey(userId: string, type: AvatarType): string {
   return `${PREFIX}${userId}/${crypto.randomUUID()}.${EXTENSIONS[type]}`;
 }
 

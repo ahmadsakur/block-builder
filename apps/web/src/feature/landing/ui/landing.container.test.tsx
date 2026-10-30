@@ -9,7 +9,8 @@ test("renders the heading and entry links", () => {
     "href",
     "/dashboard",
   );
-  expect(
-    screen.getByRole("link", { name: "View design tokens" }),
-  ).toHaveAttribute("href", "/tokens");
+  expect(screen.getByRole("link", { name: "Sign in" })).toHaveAttribute(
+    "href",
+    "/sign-in",
+  );
 });

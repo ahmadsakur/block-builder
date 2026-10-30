@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import BrandLogo from "@/components/_common/brand-logo";
 import { AuthLayout } from "@/components/dashboardblocks/auth";
-import { homeFor } from "../../_shared/logic/auth.logic";
+import { homeFor } from "@/lib/auth/routes";
 import { useSignIn } from "../../_shared/query/auth.query";
 import AuthLink from "../../_shared/ui/auth-link";
 import SignInForm from "./components/sign-in-form";

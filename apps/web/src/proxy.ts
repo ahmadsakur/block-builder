@@ -2,7 +2,7 @@ import { type Role, toRole } from "@block-builder/shared/auth";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
-import { proxyRedirect } from "@/feature/auth/_shared/logic/auth.logic";
+import { proxyRedirect } from "@/lib/auth/routes";
 
 async function sessionRole(request: NextRequest): Promise<Role | null> {
   if (!getSessionCookie(request)) return null;
@@ -24,5 +24,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/app/:path*", "/sign-in", "/sign-up"],
+  matcher: ["/back-office/:path*", "/dashboard/:path*", "/sign-in", "/sign-up"],
 };

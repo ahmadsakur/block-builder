@@ -1,4 +1,4 @@
-import ProfileSkeleton from "@/feature/auth/profile/ui/components/profile-skeleton";
+import ProfileSkeleton from "@/feature/dashboard/profile/ui/components/profile-skeleton";
 
 export default function ProfileLoading() {
   return <ProfileSkeleton />;

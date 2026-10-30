@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./auth": "./src/auth.ts",
+    "./avatar": "./src/avatar.ts",
     "./list-query": "./src/list-query.ts"
   },
   "scripts": {

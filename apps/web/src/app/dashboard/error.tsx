@@ -9,5 +9,5 @@ export default function DashboardError({
   error: unknown;
   retry: () => void;
 }) {
-  return <ErrorPage error={error} retry={retry} />;
+  return <ErrorPage error={error} retry={retry} home="/dashboard" />;
 }

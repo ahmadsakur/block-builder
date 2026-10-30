@@ -41,7 +41,7 @@ one `API_URL`.
   (`podman compose up -d`, inbox http://localhost:8025). Production: point `SMTP_*` at
   any provider.
 - Flows that send mail: verification on sign-up and on sign-in while unverified (the
-  link signs the user in and lands on `/app`), and password reset (lands on
+  link signs the user in and lands on `/dashboard`), and password reset (lands on
   `/reset-password?token=…`, or `?error=INVALID_TOKEN`).
 - Schema: `src/db/auth-schema.ts` is generated. After changing plugins or user fields:
   `pnpm auth:generate`, then `pnpm db:generate --name <change>`, then `pnpm db:migrate`.
@@ -67,7 +67,8 @@ one `API_URL`.
   and deletes the previous file. `DELETE /api/avatars` clears it.
   `GET /api/avatars/:userId/:file` streams the file with an immutable cache header, since
   each upload gets a new name. Deleting the account deletes the file (`beforeDelete`).
-- The web resizes to a 256 px WebP before upload (`squareImage`).
+- Allowed types and the 1 MB limit come from `@block-builder/shared/avatar`, so the web
+  picker and the API agree. The web resizes to a 256 px WebP before upload (`squareImage`).
 
 ## Containers
 

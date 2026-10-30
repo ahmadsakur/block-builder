@@ -1,10 +1,9 @@
+import { AVATAR_MAX_BYTES, isAvatarType } from "@block-builder/shared/avatar";
 import { Hono } from "hono";
 import { auth } from "../auth";
 import {
-  AVATAR_MAX_BYTES,
   avatarImageUrl,
   avatarKeyFromImage,
-  isAvatarType,
   newAvatarKey,
 } from "../lib/avatar";
 import { storage } from "../lib/storage";

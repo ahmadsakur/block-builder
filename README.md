@@ -16,7 +16,7 @@ pnpm --filter @block-builder/api db:seed      # creates the root user from ROOT_
 pnpm dev                                      # web :3000, api :3001
 ```
 
-Comments in each `.env.example` say how to fill it. Sign in as root to land on `/dashboard`; register a new account (verify it from Mailpit) to land on `/app`.
+Comments in each `.env.example` say how to fill it. Sign in as root to land on `/back-office`; register a new account (verify it from Mailpit) to land on `/dashboard`.
 
 To prove the built images run: `podman compose --profile app up --build` (own Postgres, migrates and seeds on start), then `podman compose --profile app down -v --rmi all`.
 
@@ -27,11 +27,11 @@ pnpm workspaces + Turborepo. API: Hono on Node, better-auth (email + password, v
 ## What is in the box
 
 - Auth on better-auth: sign-up with email verification, sign-in, forgot and reset password by email, profile with photo upload.
-- Two roles: one `root` (seeded from env) on `/dashboard`, self-registered `user`s on `/app`, same shell with per-role menus.
+- Two roles: one `root` (seeded from env) on `/back-office`, self-registered `user`s on `/dashboard`, same shell with per-role menus.
 - Dashboard shell: sidebar, header, ⌘K menu, notifications, dark mode.
 - Home dashboard and a customers list (server-side table, filters, URL state, create/edit/delete).
 - Skeletons, empty and error states, 404 and error boundary.
-- Design tokens in `src/app/globals.css`, previewed at `/tokens` (dev only).
+- Design tokens in `src/app/globals.css`.
 
 ## Commands
 
