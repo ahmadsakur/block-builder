@@ -4,10 +4,10 @@ import { csrf } from "hono/csrf";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { secureHeaders } from "hono/secure-headers";
-import { auth } from "./auth";
-import { db } from "./db";
+import { db } from "./db/client";
 import { env } from "./env";
-import { avatars } from "./routes/avatars";
+import { auth } from "./modules/auth/auth";
+import { avatars } from "./modules/avatars/avatars.routes";
 
 export const app = new Hono()
   .basePath("/api")

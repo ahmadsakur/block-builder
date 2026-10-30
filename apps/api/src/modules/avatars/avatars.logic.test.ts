@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { avatarImageUrl, avatarKeyFromImage, newAvatarKey } from "./avatar";
+import {
+  avatarImageUrl,
+  avatarKeyFromImage,
+  newAvatarKey,
+} from "./avatars.logic";
 
 describe("avatar keys", () => {
   test("round-trips a key through its public URL", () => {

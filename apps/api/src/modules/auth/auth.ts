@@ -3,11 +3,10 @@ import { DEFAULT_ROLE } from "@block-builder/shared/auth";
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
-import { db } from "./db";
-import { env } from "./env";
-import { avatarKeyFromImage } from "./lib/avatar";
-import { sendEmail } from "./lib/mailer";
-import { storage } from "./lib/storage";
+import { db } from "../../db/client";
+import { env } from "../../env";
+import { sendEmail } from "../../lib/mailer";
+import { deleteAvatarFile } from "../avatars/avatars.service";
 
 export const auth = betterAuth({
   baseURL: env.BETTER_AUTH_URL,
@@ -41,10 +40,7 @@ export const auth = betterAuth({
     changeEmail: { enabled: true },
     deleteUser: {
       enabled: true,
-      beforeDelete: async (user) => {
-        const key = avatarKeyFromImage(user.image);
-        if (key) await storage.delete(key);
-      },
+      beforeDelete: (user) => deleteAvatarFile(user.image),
     },
   },
   plugins: [

@@ -9,7 +9,7 @@ become feature code.
 
 Monorepo: pnpm workspaces + Turborepo.
 
-- `apps/api/` (`@block-builder/api`): Hono on Node, better-auth, Drizzle on Postgres, SMTP mail, file storage. Read [`.agents/backend-api.md`](.agents/backend-api.md) before touching it, auth, the schema or any `service/` that calls it.
+- `apps/api/` (`@block-builder/api`): Hono on Node, better-auth, Drizzle on Postgres, SMTP mail, file storage; code grouped by domain in `src/modules/`. Read [`.agents/backend-api.md`](.agents/backend-api.md) before touching it, auth, the schema or any `service/` that calls it.
 - `apps/web/`: the Next.js app (`@block-builder/web`). Its Next.js rules are in `apps/web/AGENTS.md`; read them before writing app code. App paths in these docs (`src/…`, `.env.example`, `components.json`) are relative to `apps/web/`.
 - `packages/shared/` (`@block-builder/shared`): framework-free contracts every app needs: zod schemas, wire types, roles (`ROLES`, `toRole`), pure helpers. One subpath export per module (`@block-builder/shared/auth`, `/list-query`); the web feature `types/` file re-exports it. Move a type or schema here once a second app needs it. React, Next, nuqs and browser-only code stay in `apps/web`.
 - `packages/tsconfig/` (`@block-builder/tsconfig`): `base.json` for packages and services, `nextjs.json` for Next apps.
@@ -38,7 +38,7 @@ pnpm only. Root scripts run each workspace's script through Turborepo.
 
 ## Env
 
-Declare every app env var in that app's `src/env.ts` and `.env.example` (`apps/web/`, `apps/api/`); each app loads env files from its own folder. Read through `env` (`@/env` in web, `./env` in api), never `process.env` (Biome enforces this in both `src/`). Validation runs when `next.config.ts` loads, so `dev`/`build` fail fast. Client and shared vars must also be listed by full name in `experimental__runtimeEnv` so Next can inline them. `SKIP_ENV_VALIDATION=1` skips validation (e.g. Docker image builds).
+Declare every app env var in that app's `src/env.ts` and `.env.example` (`apps/web/`, `apps/api/`); each app loads env files from its own folder. Read through `env` (`@/env` in web, `src/env.ts` in api), never `process.env` (Biome enforces this in both `src/`). Validation runs when `next.config.ts` loads, so `dev`/`build` fail fast. Client and shared vars must also be listed by full name in `experimental__runtimeEnv` so Next can inline them. `SKIP_ENV_VALIDATION=1` skips validation (e.g. Docker image builds).
 
 ## Data
 

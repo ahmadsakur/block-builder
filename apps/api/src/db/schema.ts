@@ -1,1 +1,1 @@
-export * from "./auth-schema";
+export * from "../modules/auth/auth.schema";

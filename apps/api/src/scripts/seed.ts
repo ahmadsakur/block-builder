@@ -1,9 +1,9 @@
 import { and, eq, ne } from "drizzle-orm";
-import { auth } from "../auth";
-import { db } from "../db";
+import { db } from "../db/client";
 import { user } from "../db/schema";
 import { env } from "../env";
 import { storage } from "../lib/storage";
+import { auth } from "../modules/auth/auth";
 
 async function seedRoot() {
   const { ROOT_EMAIL, ROOT_NAME, ROOT_PASSWORD } = env;
