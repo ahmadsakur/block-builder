@@ -27,6 +27,8 @@ export const env = createEnv({
     ROOT_EMAIL: z.email().optional(),
     ROOT_PASSWORD: z.string().min(8).optional(),
     ROOT_NAME: z.string().default("Root"),
+    SEED_DEMO_USERS: z.stringbool().default(false),
+    DEMO_PASSWORD: z.string().min(8).default("demo-password"),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

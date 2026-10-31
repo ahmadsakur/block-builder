@@ -11,7 +11,7 @@ Monorepo: pnpm workspaces + Turborepo.
 
 - `apps/api/` (`@block-builder/api`): Hono on Node, better-auth, Drizzle on Postgres, SMTP mail, file storage; code grouped by domain in `src/modules/`. Read [`.agents/backend-api.md`](.agents/backend-api.md) before touching it, auth, the schema or any `service/` that calls it.
 - `apps/web/`: the Next.js app (`@block-builder/web`). Its Next.js rules are in `apps/web/AGENTS.md`; read them before writing app code. App paths in these docs (`src/…`, `.env.example`, `components.json`) are relative to `apps/web/`.
-- `packages/shared/` (`@block-builder/shared`): framework-free contracts every app needs: zod schemas, wire types, roles (`ROLES`, `toRole`), pure helpers. One subpath export per module (`@block-builder/shared/auth`, `/list-query`); the web feature `types/` file re-exports it. Move a type or schema here once a second app needs it. React, Next, nuqs and browser-only code stay in `apps/web`.
+- `packages/shared/` (`@block-builder/shared`): framework-free contracts every app needs: zod schemas, wire types, roles (`ROLES`, `toRole`), plans and the permission catalog, API paths, pure helpers. One subpath export per module (`/auth`, `/list-query`, `/api`, `/entitlements`, `/plans`, `/users`, `/projects`, `/analytics`); the web feature `types/` file re-exports it. Move a type or schema here once a second app needs it. React, Next, nuqs and browser-only code stay in `apps/web`.
 - `packages/tsconfig/` (`@block-builder/tsconfig`): `base.json` for packages and services, `nextjs.json` for Next apps.
 - UI components stay in `apps/web` while it is the only frontend.
 - Root: Biome, lefthook, Turborepo, `compose.yaml`, CI and agent docs.
@@ -44,7 +44,9 @@ Declare every app env var in that app's `src/env.ts` and `.env.example` (`apps/w
 
 TanStack Query is the data layer and nuqs holds URL state. Every feature reads data through `ui/ -> query/ -> service/`; base services return mock data with a delay. Providers (QueryClient, nuqs adapter) live in `src/components/_common/providers.tsx`. Details: `.agents/domain-structure.md` (Data flow).
 
-Backend: `apps/api`. Next rewrites `/api/*` to it (`API_URL`), so the browser sees one origin and auth cookies stay first-party. The auth service is real (better-auth client in `src/lib/auth/client.ts`); the other services still return mock data with a delay until the API has their tables. Replacing a mock means rewriting only its `service/` body.
+Backend: `apps/api`. Next rewrites `/api/*` to it (`API_URL`), so the browser sees one origin and auth cookies stay first-party. The auth service is real (better-auth client in `src/lib/auth/client.ts`). App endpoints are versioned and scoped by role, `/api/v1/root/*` and `/api/v1/user/*`; a `service/` calls them with `api()` / `apiBlob()` from `src/lib/api.ts` using the paths in `@block-builder/shared/api` and the types and zod schemas from the matching shared module. Services the API doesn't serve yet return mock data with a delay; replacing a mock means rewriting only its `service/` body.
+
+Plans and permissions: the permission catalog is code (`@block-builder/shared/entitlements`), values per plan are edited by root, and the API enforces them. A dashboard page that needs a permission is listed in `GATED_PAGES` (`src/lib/auth/routes.ts`) so the proxy sends a locked plan to `/dashboard/upgrade?permission=<key>`. Details: `.agents/backend-api.md` (Plans and permissions).
 
 Add-ons: optional layers that sit on top of a backend (an auth library, payments, …) are recipes in `.agents/addons/<name>.md`, never branches. Apply one only when asked ("apply the <name> add-on"): read the whole recipe, then follow it step by step.
 

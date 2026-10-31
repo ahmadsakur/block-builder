@@ -9,6 +9,7 @@ describe("toSession", () => {
         id: "1",
         image: "/a.png",
         name: "Ana",
+        plan: "pro",
         role: "root",
       }),
     ).toEqual({
@@ -17,16 +18,23 @@ describe("toSession", () => {
         email: "a@b.co",
         id: "1",
         name: "Ana",
+        plan: "pro",
         role: "root",
       },
     });
   });
 
-  test("leaves avatarUrl out and defaults the role", () => {
+  test("leaves avatarUrl out and defaults the role and plan", () => {
     expect(
       toSession({ email: "a@b.co", id: "1", image: null, name: "Ana" }),
     ).toEqual({
-      user: { email: "a@b.co", id: "1", name: "Ana", role: "user" },
+      user: {
+        email: "a@b.co",
+        id: "1",
+        name: "Ana",
+        plan: "free",
+        role: "user",
+      },
     });
   });
 });

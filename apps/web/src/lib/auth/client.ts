@@ -1,11 +1,16 @@
 import { createAuthClient } from "better-auth/client";
-import { adminClient } from "better-auth/client/plugins";
+import { adminClient, inferAdditionalFields } from "better-auth/client/plugins";
 import { env } from "@/env";
 import { type AuthError, authErrorMessage } from "./errors";
 
 export const authClient = createAuthClient({
   baseURL: env.NEXT_PUBLIC_APP_URL,
-  plugins: [adminClient()],
+  plugins: [
+    adminClient(),
+    inferAdditionalFields({
+      user: { plan: { type: "string", required: true, input: false } },
+    }),
+  ],
 });
 
 export async function unwrap<T>(

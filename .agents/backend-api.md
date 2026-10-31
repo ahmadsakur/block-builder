@@ -10,7 +10,8 @@ calls the API. Paths below are relative to `apps/api/`.
   (form posts must come from the `BETTER_AUTH_URL` origin). `onError` passes Hono's
   `HTTPException` through and turns anything else into a 500 JSON body.
 - Routes: `/api/health` (pings the database), `/api/auth/*` (better-auth),
-  `/api/avatars` (profile photo, see Storage).
+  `/api/avatars` (profile photo, see Storage), and the versioned app API under
+  `/api/v1/<scope>/…` (see Versioned API).
 - Guard endpoints with `requireAuth()` (any signed-in user) or `requireAuth("root")` from
   `src/modules/auth/auth.middleware.ts`; it puts `user` and `session` on the context.
 - Env: `src/env.ts` (`@t3-oss/env-core`), documented in `.env.example`. Scripts load
@@ -56,6 +57,46 @@ Rules:
 - New domain: add `<domain>.table.ts`, export it from `db/schema.ts`, run `db:generate`
   and `db:migrate`, write `<domain>.routes.ts` + `<domain>.service.ts`, mount the routes in
   `app.ts`, then rewrite the matching web `service/` body to call it.
+
+## Versioned API (`/api/v1/<scope>`)
+
+Every app endpoint lives under a version and a scope, so the URL says who may call it:
+`/api/v1/root/users` is the back office, `/api/v1/user/projects` is the dashboard.
+
+- `src/v1.ts` builds one sub-app per scope and guards the whole scope once:
+  `root` with `requireAuth("root")`, `user` with `requireAuth("user")`. An endpoint can't
+  be added to a scope without its guard.
+- A module exports one Hono sub-app per scope it serves, from `<domain>.<scope>.routes.ts`
+  (`users.root.routes.ts`, `projects.user.routes.ts`), and `v1.ts` mounts it.
+- Paths are listed once in `@block-builder/shared/api` (`API.root.users`,
+  `API.user.project(id)`); the web calls them through `api()` from `src/lib/api.ts`.
+- Request bodies and query strings are parsed with the shared zod schemas
+  (`parse(schema, value)` and `readJson` from `src/lib/http.ts`); a failure is a 400 with
+  the first issue's message. Errors are `{ message, code?, permission? }`
+  (`ApiErrorBody`).
+- Breaking a response shape means a new version (`/api/v2/...`), not an edit in place.
+
+## Plans and permissions
+
+- A user's plan is `user.plan` (better-auth additional field, `input: false`, default
+  `free`). Only root changes it: `PATCH /api/v1/root/users/:id/plan`. Root ignores plans.
+- The permission catalog is code: `FEATURES` in `@block-builder/shared/entitlements`.
+  Each feature registers its permissions there, as a `flag` (on/off) or a `limit`
+  (`enabled` + `limit`, `null` = unlimited). A key with no row for a plan is denied, so a
+  new permission is off for every plan until root turns it on.
+- Values per plan live in `plan_permission` (`modules/plans/`), edited by root through
+  `PUT /api/v1/root/permissions/:planId/:key`. `db:seed` inserts the default plans and
+  values from `plans.data.ts` without overwriting root's edits.
+- Enforcement is server-side and lives in one place, `modules/plans/`:
+  `withEntitlements(...keys)` loads the caller's entitlements, rejects missing flags and
+  puts `entitlements` on the context; services call `assertRoom(entitlements, key, used)`
+  before creating. Both throw `AccessError` (`FEATURE_LOCKED` / `LIMIT_REACHED`), which
+  `app.ts` turns into a 403 with `code` and `permission`. Count-then-insert runs in a
+  transaction under a per-user advisory lock so parallel requests can't pass the limit.
+- `modules/users/` queries better-auth's `user` table directly (paged list, plan change);
+  it is the only module besides `auth` that writes to it.
+- Demo users: with `SEED_DEMO_USERS=true`, `db:seed` creates `free@demo.local` and
+  `pro@demo.local` (password `DEMO_PASSWORD`) with a few projects. Dev only.
 
 ## Why the web proxies /api
 

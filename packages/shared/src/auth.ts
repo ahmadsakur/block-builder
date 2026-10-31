@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { PlanId } from "./plans";
 
 export const ROLES = ["root", "user"] as const;
 export type Role = (typeof ROLES)[number];
@@ -13,6 +14,7 @@ export interface AuthUser {
   email: string;
   name: string;
   role: Role;
+  plan: PlanId;
   avatarUrl?: string;
 }
 

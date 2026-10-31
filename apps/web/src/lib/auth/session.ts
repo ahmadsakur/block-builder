@@ -1,4 +1,5 @@
 import { type Session, toRole } from "@block-builder/shared/auth";
+import { toPlanId } from "@block-builder/shared/plans";
 import { authClient, unwrap } from "./client";
 import { authErrorMessage } from "./errors";
 
@@ -8,14 +9,16 @@ export function toSession(user: {
   name: string;
   image?: string | null;
   role?: string | null;
+  plan?: string | null;
 }): Session {
-  const { id, email, name, image, role } = user;
+  const { id, email, name, image, role, plan } = user;
   return {
     user: {
       email,
       id,
       name,
       role: toRole(role),
+      plan: toPlanId(plan),
       ...(image ? { avatarUrl: image } : {}),
     },
   };

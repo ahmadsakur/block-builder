@@ -8,6 +8,7 @@ const USER: AuthUser = {
   email: "jane@acme.com",
   id: "user-jane",
   name: "Jane Doe",
+  plan: "free",
   role: "user",
 };
 

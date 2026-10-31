@@ -1,26 +1,52 @@
+import { API } from "@block-builder/shared/api";
 import { type Role, toRole } from "@block-builder/shared/auth";
+import {
+  isAllowed,
+  type PermissionKey,
+} from "@block-builder/shared/entitlements";
+import type { MyEntitlements } from "@block-builder/shared/plans";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
-import { proxyRedirect } from "@/lib/auth/routes";
+import { gateFor, proxyRedirect, upgradeHref } from "@/lib/auth/routes";
+
+async function fetchApi<T>(
+  request: NextRequest,
+  path: string,
+): Promise<T | null> {
+  const response = await fetch(`${env.API_URL}${path}`, {
+    headers: { cookie: request.headers.get("cookie") ?? "" },
+  });
+  return response.ok ? response.json() : null;
+}
 
 async function sessionRole(request: NextRequest): Promise<Role | null> {
   if (!getSessionCookie(request)) return null;
-  const response = await fetch(`${env.API_URL}/api/auth/get-session`, {
-    headers: { cookie: request.headers.get("cookie") ?? "" },
-  });
-  if (!response.ok) return null;
-  const session: { user?: { role?: string } } | null = await response.json();
+  const session = await fetchApi<{ user?: { role?: string } }>(
+    request,
+    "/api/auth/get-session",
+  );
   return session?.user ? toRole(session.user.role) : null;
 }
 
+async function planAllows(
+  request: NextRequest,
+  permission: PermissionKey,
+): Promise<boolean> {
+  const mine = await fetchApi<MyEntitlements>(request, API.user.entitlements);
+  return mine ? isAllowed(mine.entitlements, permission) : true;
+}
+
 export async function proxy(request: NextRequest) {
-  const target = proxyRedirect(
-    request.nextUrl.pathname,
-    await sessionRole(request),
-  );
-  if (!target) return NextResponse.next();
-  return NextResponse.redirect(new URL(target, request.url));
+  const { pathname } = request.nextUrl;
+  const role = await sessionRole(request);
+  const target = proxyRedirect(pathname, role);
+  if (target) return NextResponse.redirect(new URL(target, request.url));
+  const permission = role === "user" ? gateFor(pathname) : undefined;
+  if (permission && !(await planAllows(request, permission))) {
+    return NextResponse.redirect(new URL(upgradeHref(permission), request.url));
+  }
+  return NextResponse.next();
 }
 
 export const config = {

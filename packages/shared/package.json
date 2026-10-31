@@ -4,9 +4,15 @@
   "private": true,
   "type": "module",
   "exports": {
+    "./analytics": "./src/analytics.ts",
+    "./api": "./src/api.ts",
     "./auth": "./src/auth.ts",
     "./avatar": "./src/avatar.ts",
-    "./list-query": "./src/list-query.ts"
+    "./entitlements": "./src/entitlements.ts",
+    "./list-query": "./src/list-query.ts",
+    "./plans": "./src/plans.ts",
+    "./projects": "./src/projects.ts",
+    "./users": "./src/users.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

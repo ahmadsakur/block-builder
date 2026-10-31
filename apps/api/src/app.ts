@@ -8,6 +8,8 @@ import { db } from "./db/client";
 import { env } from "./env";
 import { auth } from "./modules/auth/auth";
 import { avatars } from "./modules/avatars/avatars.routes";
+import { AccessError } from "./modules/plans/plans.logic";
+import { v1 } from "./v1";
 
 export const app = new Hono()
   .basePath("/api")
@@ -18,6 +20,10 @@ export const app = new Hono()
   )
   .onError((error, c) => {
     if (error instanceof HTTPException) return error.getResponse();
+    if (error instanceof AccessError) {
+      const { code, message, permission } = error;
+      return c.json({ code, message, permission }, 403);
+    }
     console.error(error);
     return c.json({ message: "Something went wrong. Try again." }, 500);
   })
@@ -26,4 +32,5 @@ export const app = new Hono()
     return c.json({ ok: true });
   })
   .all("/auth/*", (c) => auth.handler(c.req.raw))
-  .route("/avatars", avatars);
+  .route("/avatars", avatars)
+  .route("/v1", v1);

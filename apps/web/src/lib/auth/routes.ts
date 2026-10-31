@@ -1,4 +1,5 @@
 import type { Role } from "@block-builder/shared/auth";
+import type { PermissionKey } from "@block-builder/shared/entitlements";
 
 const HOME_BY_ROLE: Record<Role, string> = {
   root: "/back-office",
@@ -28,4 +29,21 @@ export function proxyRedirect(
   }
   if (!role) return "/sign-in";
   return role === area ? null : homeFor(role);
+}
+
+export const UPGRADE_PATH = "/dashboard/upgrade";
+
+const GATED_PAGES: Record<string, PermissionKey> = {
+  "/dashboard/analytics": "analytics.view",
+};
+
+export function gateFor(pathname: string): PermissionKey | undefined {
+  const page = Object.keys(GATED_PAGES).find(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  );
+  return page ? GATED_PAGES[page] : undefined;
+}
+
+export function upgradeHref(permission: PermissionKey): string {
+  return `${UPGRADE_PATH}?${new URLSearchParams({ permission })}`;
 }

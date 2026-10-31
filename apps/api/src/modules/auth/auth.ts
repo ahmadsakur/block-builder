@@ -1,5 +1,6 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { DEFAULT_ROLE } from "@block-builder/shared/auth";
+import { DEFAULT_PLAN } from "@block-builder/shared/plans";
 import { betterAuth } from "better-auth";
 import { admin } from "better-auth/plugins";
 import { adminAc, userAc } from "better-auth/plugins/admin/access";
@@ -37,6 +38,14 @@ export const auth = betterAuth({
     },
   },
   user: {
+    additionalFields: {
+      plan: {
+        type: "string",
+        required: true,
+        defaultValue: DEFAULT_PLAN,
+        input: false,
+      },
+    },
     changeEmail: { enabled: true },
     deleteUser: {
       enabled: true,

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { homeFor, proxyRedirect } from "./routes";
+import { gateFor, homeFor, proxyRedirect, upgradeHref } from "./routes";
 
 describe("homeFor", () => {
   test("sends each role to its own area", () => {
@@ -29,4 +29,22 @@ describe("proxyRedirect", () => {
   test("doesn't treat look-alike paths as an area", () => {
     expect(proxyRedirect("/dashboards", null)).toBeNull();
   });
+});
+
+describe("gateFor", () => {
+  test("finds the permission a dashboard page needs", () => {
+    expect(gateFor("/dashboard/analytics")).toBe("analytics.view");
+    expect(gateFor("/dashboard/analytics/weekly")).toBe("analytics.view");
+  });
+
+  test("leaves open pages and look-alikes alone", () => {
+    expect(gateFor("/dashboard/projects")).toBeUndefined();
+    expect(gateFor("/dashboard/analyticsx")).toBeUndefined();
+  });
+});
+
+test("upgradeHref names the locked permission", () => {
+  expect(upgradeHref("analytics.view")).toBe(
+    "/dashboard/upgrade?permission=analytics.view",
+  );
 });

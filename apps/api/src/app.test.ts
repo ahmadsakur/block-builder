@@ -19,6 +19,30 @@ describe("app", () => {
     expect(response.status).toBe(401);
   });
 
+  it.each([
+    ["GET", "/api/v1/root/users"],
+    ["PATCH", "/api/v1/root/users/u1/plan"],
+    ["GET", "/api/v1/root/plans"],
+    ["PATCH", "/api/v1/root/plans/free"],
+    ["GET", "/api/v1/root/permissions"],
+    ["PUT", "/api/v1/root/permissions/free/projects.max"],
+    ["GET", "/api/v1/user/entitlements"],
+    ["GET", "/api/v1/user/plans"],
+    ["GET", "/api/v1/user/projects"],
+    ["POST", "/api/v1/user/projects"],
+    ["DELETE", "/api/v1/user/projects/p1"],
+    ["GET", "/api/v1/user/projects/export"],
+    ["GET", "/api/v1/user/analytics"],
+    ["GET", "/api/v1/root/unknown"],
+  ])("rejects %s %s without a session", async (method, path) => {
+    const response = await app.request(path, {
+      headers: { Origin: "http://localhost:3000" },
+      method,
+    });
+
+    expect(response.status).toBe(401);
+  });
+
   it("rejects form posts from another origin", async () => {
     const response = await app.request("/api/avatars", {
       body: new FormData(),
