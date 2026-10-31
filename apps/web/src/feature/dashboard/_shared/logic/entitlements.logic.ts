@@ -38,8 +38,8 @@ export function formatLimit(limit: number | null): string {
 
 export function usageLabel(key: LimitKey, { limit, used }: LimitState) {
   const unit = permissionDef(key).unit ?? "";
-  const of = limit === null ? "unlimited" : formatNumber(limit);
-  return `${formatNumber(used)} of ${of} ${unit}`.trim();
+  if (limit === null) return `${formatNumber(used)} ${unit}, no limit`.trim();
+  return `${formatNumber(used)} of ${formatNumber(limit)} ${unit}`.trim();
 }
 
 export function lockedCopy(key: PermissionKey, planName?: string) {

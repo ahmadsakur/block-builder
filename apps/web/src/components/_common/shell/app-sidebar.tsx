@@ -1,5 +1,6 @@
 "use client";
 
+import type { AuthUser } from "@block-builder/shared/auth";
 import { GalleryVerticalEndIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
@@ -15,15 +16,19 @@ import {
   type Workspace,
   WorkspaceSwitcher,
 } from "@/components/dashboardblocks/app-shell";
+import { useSessionQuery } from "@/lib/auth/session-query";
 
-const WORKSPACES: Workspace[] = [
-  {
-    id: "acme",
-    logo: <GalleryVerticalEndIcon />,
-    name: "Acme Inc.",
-    plan: "Pro plan",
-  },
-];
+const WORKSPACE: Workspace = {
+  id: "acme",
+  logo: <GalleryVerticalEndIcon />,
+  name: "Acme Inc.",
+};
+
+function workspacePlan(user?: AuthUser): string | undefined {
+  if (!user) return undefined;
+  if (user.role === "root") return "Administrator";
+  return `${user.plan.charAt(0).toUpperCase()}${user.plan.slice(1)} plan`;
+}
 
 type AppSidebarProps = {
   sections: NavSection[];
@@ -32,7 +37,8 @@ type AppSidebarProps = {
 
 export default function AppSidebar({ sections, footer }: AppSidebarProps) {
   const pathname = usePathname();
-  const [workspaceId, setWorkspaceId] = useState(WORKSPACES[0]?.id ?? "");
+  const [workspaceId, setWorkspaceId] = useState(WORKSPACE.id);
+  const plan = workspacePlan(useSessionQuery().data?.user);
 
   return (
     <Sidebar>
@@ -40,7 +46,7 @@ export default function AppSidebar({ sections, footer }: AppSidebarProps) {
         <WorkspaceSwitcher
           onValueChange={setWorkspaceId}
           value={workspaceId}
-          workspaces={WORKSPACES}
+          workspaces={[{ ...WORKSPACE, plan }]}
         />
       </SidebarHeader>
       <SidebarContent>

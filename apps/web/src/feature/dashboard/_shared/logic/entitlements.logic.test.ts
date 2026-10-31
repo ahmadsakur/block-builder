@@ -57,7 +57,7 @@ test("usageLabel and formatLimit describe limits in words", () => {
   );
   expect(
     usageLabel("projects.max", { hasRoom: true, limit: null, used: 4 }),
-  ).toBe("4 of unlimited projects");
+  ).toBe("4 projects, no limit");
   expect(formatLimit(null)).toBe("Unlimited");
   expect(formatLimit(25)).toBe("25");
 });
