@@ -11,7 +11,7 @@ calls the API. Paths below are relative to `apps/api/`.
   `HTTPException` through and turns anything else into a 500 JSON body.
 - Routes: `/api/health` (pings the database), `/api/auth/*` (better-auth),
   `/api/avatars` (profile photo, see Storage), and the versioned app API under
-  `/api/v1/<scope>/�` (see Versioned API).
+  `/api/v1/<scope>/…` (see Versioned API).
 - Guard endpoints with `requireAuth()` (any signed-in user) or `requireAuth("root")` from
   `src/modules/auth/auth.middleware.ts`; it puts `user` and `session` on the context.
 - Env: `src/env.ts` (`@t3-oss/env-core`), documented in `.env.example`. Scripts load
@@ -20,7 +20,7 @@ calls the API. Paths below are relative to `apps/api/`.
 ## Folder structure
 
 Code is grouped by domain, like the web app. Each domain is a folder in `src/modules/`,
-named like its web domain (`customers` on the web ↔ `modules/customers` here).
+named like its web domain (`users` on the web ↔ `modules/users` here).
 
 ```
 src/

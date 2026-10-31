@@ -184,11 +184,12 @@ so it works the same on any backend.
 - Any component that reads TanStack table state while rendering (selection, visibility)
   starts with `"use no memo"`: the table object keeps its identity, so React Compiler would
   otherwise memoize stale UI.
-- Row actions: a last display column (`id: "actions"`) renders a `…` menu with Edit and a
-  destructive Delete. Columns stay module-level constants; the row menu gets its callbacks
-  from a small context the table provides (`ui/components/table/row-actions.tsx`).
-- Reference: `feature/back-office/customers/` (columns in `ui/components/table/`, query
-  logic and CSV export in `logic/` with tests).
+- Row actions: a last display column (`id: "actions"`) renders a `…` menu with the row's
+  actions. Columns stay module-level constants; cells that need callbacks or data from the
+  page (row menu, labels from another query) read a small context the table provides
+  (`ui/components/table/user-table-context.ts`).
+- Reference: `feature/back-office/users/` (columns in `ui/components/table/`; the service
+  passes the query to the API with `userListSearchParams`).
 
 ## Forms
 
@@ -219,8 +220,8 @@ down. Server errors render as a form-level `FieldError`. See `feature/auth/sign-
   undone. The confirm button is a plain destructive `Button` that waits for the mutation
   (`AlertDialogAction` would close immediately).
 - Feedback: `toast.success(...)` from `sonner` after a save or delete; errors stay inline.
-- Reference: `feature/back-office/customers/ui/components/form/` and
-  `delete-customer-dialog.tsx`, with form and container tests.
+- Reference: `feature/back-office/users/ui/components/form/` (edit-only form in a
+  dialog) and `feature/back-office/plans/`, with container tests that mock the service.
 
 ## Naming
 
