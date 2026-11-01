@@ -9,3 +9,7 @@ export function createPlan(input: PlanInput): Promise<Plan> {
 export function updatePlan(id: PlanId, input: PlanInput): Promise<Plan> {
   return api(API.root.plan(id), { json: input, method: "PATCH" });
 }
+
+export function deletePlan(id: PlanId): Promise<void> {
+  return api(API.root.plan(id), { method: "DELETE" });
+}

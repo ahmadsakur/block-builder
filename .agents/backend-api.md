@@ -89,8 +89,8 @@ Every app endpoint lives under a version and a scope, so the URL says who may ca
 - Plans are rows in `plan`, managed by root under `/api/v1/root/plans`: list (`PlanRow`
   with members, a few faces and entitlements), create (id slugged from the name with
   `planSlug`, `-2`… on a clash), `GET`/`PATCH`/`DELETE /:id`. `DEFAULT_PLAN` (`free`) is
-  where sign-ups land; it can't be deleted, and deleting any other plan moves its users
-  there first.
+  where sign-ups land; it can't be deleted. Any other plan deletes only while nobody is
+  on it (`409` naming the user count otherwise); root moves its users first.
 - Values per plan live in `plan_permission` (`modules/plans/`), replaced as a whole by
   `PUT /api/v1/root/plans/:id/permissions` with `{ entitlements }`. `db:seed` inserts the
   default plans and values from `plans.data.ts` without overwriting root's edits.

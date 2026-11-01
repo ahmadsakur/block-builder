@@ -12,6 +12,7 @@ import {
   getPlan,
   getPlanDetail,
   listPlanRows,
+  memberCount,
   setPlanPermissions,
   updatePlan,
 } from "./plans.service";
@@ -48,7 +49,12 @@ export const rootPlans = new Hono<AuthEnv>()
         message: "The default plan can't be deleted. New sign-ups join it.",
       });
     }
-    if (!(await deletePlan(found.id))) throw notFound();
+    if (!(await deletePlan(found.id))) {
+      const members = await memberCount(found.id);
+      throw httpError(409, {
+        message: `${found.name} still has ${members} ${members === 1 ? "user" : "users"}. Move them to another plan first.`,
+      });
+    }
     return c.body(null, 204);
   })
   .put("/:id/permissions", async (c) => {

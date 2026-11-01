@@ -1,5 +1,6 @@
 export {
   type Plan,
+  type PlanDetail,
   type PlanId,
   type PlanInput,
   type PlanPerson,

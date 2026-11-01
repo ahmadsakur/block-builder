@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import PlansContainer from "@/feature/back-office/plans/ui/plans.container";
+import PlansContainer from "@/feature/back-office/plans/list/ui/plans.container";
 
 export const metadata: Metadata = { title: "Plans" };
 

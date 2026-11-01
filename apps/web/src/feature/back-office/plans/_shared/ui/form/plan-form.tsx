@@ -9,28 +9,28 @@ import {
   type Plan,
   type PlanInput,
   planInputSchema,
-} from "../../../types/plans.types";
+} from "../../types/plans.types";
 
-export function planFormCopy(plan?: Plan) {
+export function planFormCopy(plan?: Pick<Plan, "name">) {
   return plan
     ? {
-        cta: "Save changes",
+        cta: "Save",
         description:
-          "Renaming a plan doesn't change its permissions or its users.",
+          "The name shows wherever a plan is picked; the description, on the upgrade page.",
         pending: "Saving…",
         title: `Edit ${plan.name}`,
       }
     : {
         cta: "Create plan",
         description:
-          "A new plan starts with every permission off. Pick what it includes next.",
+          "A new plan includes nothing yet. You'll choose what it includes next.",
         pending: "Creating…",
         title: "New plan",
       };
 }
 
 type PlanFormProps = {
-  plan?: Plan;
+  plan?: Pick<Plan, "description" | "name">;
   pending: boolean;
   error?: string;
   onSubmit: (values: PlanInput) => void;
@@ -65,7 +65,7 @@ export default function PlanForm({
           control={form.control}
           name="description"
           label="Description"
-          description="Users see this on the upgrade page."
+          description="Optional. One line on who this plan is for."
         />
         {error && <FieldError>{error}</FieldError>}
       </FieldGroup>

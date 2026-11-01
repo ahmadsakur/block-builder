@@ -7,12 +7,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/_ui/dialog";
-import type { Plan, PlanInput } from "../../../types/plans.types";
+import type { Plan, PlanInput } from "../../types/plans.types";
 import PlanForm, { planFormCopy } from "./plan-form";
 
 type PlanDialogProps = {
   open: boolean;
-  plan?: Plan;
+  plan?: Pick<Plan, "description" | "id" | "name">;
   pending: boolean;
   error?: string;
   onOpenChange: (open: boolean) => void;

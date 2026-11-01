@@ -1,16 +1,15 @@
-import FormSectionSkeleton from "@/components/_common/skeletons/form-section-skeleton";
 import PageHeaderSkeleton from "@/components/_common/skeletons/page-header-skeleton";
+import PanelSkeleton from "@/components/_common/skeletons/panel-skeleton";
 
 export default function PlanDetailSkeleton() {
   return (
     <div
       role="status"
       aria-label="Loading plan"
-      className="flex w-full flex-col gap-6"
+      className="flex w-full flex-col gap-8"
     >
-      <PageHeaderSkeleton />
-      <FormSectionSkeleton fields={2} />
-      <FormSectionSkeleton fields={1} />
+      <PageHeaderSkeleton actions={2} />
+      <PanelSkeleton body="rows" rows={2} />
     </div>
   );
 }

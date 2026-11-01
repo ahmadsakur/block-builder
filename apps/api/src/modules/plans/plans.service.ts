@@ -14,7 +14,7 @@ import {
   type PlanRow,
   type PlanWithEntitlements,
 } from "@block-builder/shared/plans";
-import { and, asc, count, eq, lte, sql } from "drizzle-orm";
+import { and, asc, count, eq, lte, notExists, sql } from "drizzle-orm";
 import { db } from "../../db/client";
 import { user } from "../auth/auth.schema";
 import { DEFAULT_PERMISSIONS, DEFAULT_PLANS } from "./plans.data";
@@ -154,18 +154,23 @@ export async function updatePlan(
   return row ? toPlan(row) : null;
 }
 
+export async function memberCount(id: PlanId): Promise<number> {
+  return (await memberCounts(id)).get(id) ?? 0;
+}
+
 export async function deletePlan(id: PlanId): Promise<boolean> {
-  return db.transaction(async (tx) => {
-    await tx
-      .update(user)
-      .set({ plan: DEFAULT_PLAN, updatedAt: new Date() })
-      .where(eq(user.plan, id));
-    const deleted = await tx
-      .delete(plan)
-      .where(eq(plan.id, id))
-      .returning({ id: plan.id });
-    return deleted.length > 0;
-  });
+  const deleted = await db
+    .delete(plan)
+    .where(and(eq(plan.id, id), notExists(onPlan(id))))
+    .returning({ id: plan.id });
+  return deleted.length > 0;
+}
+
+function onPlan(id: PlanId) {
+  return db
+    .select({ id: user.id })
+    .from(user)
+    .where(and(eq(user.plan, id), eq(user.role, "user")));
 }
 
 export async function setPlanPermissions(

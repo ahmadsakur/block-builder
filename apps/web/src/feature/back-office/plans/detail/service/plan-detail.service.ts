@@ -19,7 +19,3 @@ export function savePlanPermissions(
     method: "PUT",
   });
 }
-
-export function deletePlan(id: PlanId): Promise<void> {
-  return api(API.root.plan(id), { method: "DELETE" });
-}

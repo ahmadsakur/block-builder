@@ -158,6 +158,10 @@ parts it depends on, so step 2's restore is what protects our customizations.
 Every list page pages, sorts, searches and filters **in the service**, not in the browser,
 so it works the same on any backend.
 
+Exception: a short list root curates by hand (plans) loads whole and searches and pages
+in the browser with `useDataTable` (`globalFilter`, `pageSize` 10). Reference:
+`feature/back-office/plans/list/`.
+
 - Contract (`lib/list-query.ts`): the service takes a `ListQuery` (`page`, 1-based;
   `pageSize`; `sort: { id, desc }[]`; `search`) plus the domain's filters, and returns a
   `ListResult<T>`: `{ rows, total, facets? }`. `facets` are per-filter counts for the
@@ -221,7 +225,8 @@ down. Server errors render as a form-level `FieldError`. See `feature/auth/sign-
   (`AlertDialogAction` would close immediately).
 - Feedback: `toast.success(...)` from `sonner` after a save or delete; errors stay inline.
 - Reference: `feature/back-office/users/ui/components/form/` (edit-only form in a
-  dialog) and `feature/back-office/plans/`, with container tests that mock the service.
+  dialog) and `feature/back-office/plans/_shared/ui/form/` (create and edit), with
+  container tests that mock the service.
 
 ## Naming
 

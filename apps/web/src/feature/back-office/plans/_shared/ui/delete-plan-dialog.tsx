@@ -14,8 +14,7 @@ import { FieldError } from "@/components/_ui/field";
 
 type DeletePlanDialogProps = {
   open: boolean;
-  name: string;
-  members: number;
+  name?: string;
   pending: boolean;
   error?: string;
   onOpenChange: (open: boolean) => void;
@@ -25,7 +24,6 @@ type DeletePlanDialogProps = {
 export default function DeletePlanDialog({
   open,
   name,
-  members,
   pending,
   error,
   onOpenChange,
@@ -35,12 +33,9 @@ export default function DeletePlanDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete {name}?</AlertDialogTitle>
+          <AlertDialogTitle>Delete {name ?? "this plan"}?</AlertDialogTitle>
           <AlertDialogDescription>
-            {members > 0
-              ? `Its ${members} ${members === 1 ? "user moves" : "users move"} to the default plan. `
-              : ""}
-            You can't undo this.
+            Only a plan nobody is on can be deleted. This can't be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         {error && <FieldError>{error}</FieldError>}

@@ -4,11 +4,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, test, vi } from "vitest";
 import { ApiError } from "@/lib/api";
-import {
-  deletePlan,
-  getPlan,
-  savePlanPermissions,
-} from "../service/plan-detail.service";
+import { deletePlan } from "../../_shared/service/plans.service";
+import { getPlan, savePlanPermissions } from "../service/plan-detail.service";
 import type { PlanDetail } from "../types/plan-detail.types";
 import PlanDetailContainer from "./plan-detail.container";
 
@@ -19,9 +16,14 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("../service/plan-detail.service", () => ({
-  deletePlan: vi.fn(),
   getPlan: vi.fn(),
   savePlanPermissions: vi.fn(),
+}));
+
+vi.mock("../../_shared/service/plans.service", () => ({
+  createPlan: vi.fn(),
+  deletePlan: vi.fn(),
+  updatePlan: vi.fn(),
 }));
 
 const LOAD_TIMEOUT = { timeout: 3000 };
@@ -37,7 +39,7 @@ beforeEach(() => {
     ]),
     id: "team",
     isDefault: false,
-    members: 2,
+    members: 0,
     name: "Team",
     sort: 2,
   };
@@ -62,20 +64,21 @@ function renderDetail() {
   );
 }
 
-test("turning on export also turns on projects and saves both", async () => {
+test("ticking a permission brings what it needs and saves both", async () => {
   const user = userEvent.setup();
   renderDetail();
   await user.click(
     await screen.findByRole(
-      "switch",
-      { name: "Export projects" },
+      "checkbox",
+      { name: /Export projects/ },
       LOAD_TIMEOUT,
     ),
   );
-  expect(screen.getByRole("switch", { name: "Projects" })).toBeChecked();
+  expect(screen.getByRole("checkbox", { name: /^Projects/ })).toBeChecked();
   expect(screen.getByText("2 unsaved changes")).toBeInTheDocument();
+  expect(screen.getByLabelText("Projects limit")).toHaveValue(5);
 
-  await user.click(screen.getByRole("button", { name: "Save changes" }));
+  await user.click(screen.getByRole("button", { name: "Save permissions" }));
 
   await vi.waitFor(() =>
     expect(vi.mocked(savePlanPermissions)).toHaveBeenCalledWith(
@@ -86,18 +89,58 @@ test("turning on export also turns on projects and saves both", async () => {
       }),
     ),
   );
+  await vi.waitFor(() =>
+    expect(screen.queryByText(/unsaved change/)).not.toBeInTheDocument(),
+  );
 }, 15000);
 
-test("deleting a plan confirms first and goes back to the list", async () => {
+test("select all ticks a whole feature and the facts follow", async () => {
   const user = userEvent.setup();
   renderDetail();
   await user.click(
-    await screen.findByRole("button", { name: "Delete Team" }, LOAD_TIMEOUT),
+    await screen.findByRole(
+      "button",
+      { name: "Select all Projects permissions" },
+      LOAD_TIMEOUT,
+    ),
   );
+  expect(screen.getByText("2 of 3")).toBeInTheDocument();
   expect(
-    await screen.findByText(/Its 2 users move to the default plan/),
+    screen.getByRole("button", { name: "Clear all Projects permissions" }),
   ).toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "Delete plan" }));
+});
+
+test("a bad limit blocks saving with a reason", async () => {
+  const user = userEvent.setup();
+  renderDetail();
+  await user.click(
+    await screen.findByRole("checkbox", { name: /^Projects/ }, LOAD_TIMEOUT),
+  );
+  const limit = screen.getByLabelText("Projects limit");
+  await user.clear(limit);
+  await user.type(limit, "1.5");
+  await user.click(screen.getByRole("button", { name: "Save permissions" }));
+
+  expect(
+    await screen.findByText("Projects: Use a whole number."),
+  ).toBeInTheDocument();
+  expect(vi.mocked(savePlanPermissions)).not.toHaveBeenCalled();
+}, 15000);
+
+test("deleting the plan confirms, then goes back to the list", async () => {
+  const user = userEvent.setup();
+  renderDetail();
+  await user.click(
+    await screen.findByRole(
+      "button",
+      { name: "More actions for Team" },
+      LOAD_TIMEOUT,
+    ),
+  );
+  await user.click(
+    await screen.findByRole("menuitem", { name: "Delete plan" }),
+  );
+  await user.click(await screen.findByRole("button", { name: "Delete plan" }));
 
   await vi.waitFor(() =>
     expect(push).toHaveBeenCalledWith("/back-office/plans"),
@@ -105,12 +148,15 @@ test("deleting a plan confirms first and goes back to the list", async () => {
   expect(vi.mocked(deletePlan)).toHaveBeenCalledWith("team");
 }, 15000);
 
-test("the default plan can't be deleted", async () => {
+test("the default plan has no delete", async () => {
   plan = { ...plan, id: "free", isDefault: true, name: "Free" };
   renderDetail();
   expect(
-    await screen.findByRole("button", { name: "Delete Free" }, LOAD_TIMEOUT),
-  ).toBeDisabled();
+    await screen.findByText("Default plan", {}, LOAD_TIMEOUT),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "More actions for Free" }),
+  ).not.toBeInTheDocument();
 });
 
 test("a missing plan says so", async () => {

@@ -1,5 +1,5 @@
 import PageHeaderSkeleton from "@/components/_common/skeletons/page-header-skeleton";
-import PanelSkeleton from "@/components/_common/skeletons/panel-skeleton";
+import TableSkeleton from "@/components/_common/skeletons/table-skeleton";
 
 export default function PlansSkeleton() {
   return (
@@ -8,8 +8,8 @@ export default function PlansSkeleton() {
       aria-label="Loading plans"
       className="flex w-full flex-col gap-6"
     >
-      <PageHeaderSkeleton actions={1} />
-      <PanelSkeleton body="rows" rows={2} />
+      <PageHeaderSkeleton actions={2} />
+      <TableSkeleton rows={3} />
     </div>
   );
 }
