@@ -36,7 +36,7 @@ function LimitRow({ item }: { item: PlanLimit }) {
   const near = nearLimit(item);
 
   return (
-    <li className="flex flex-col gap-2 border-b py-2.5 last:border-b-0">
+    <li className="flex flex-col gap-2 border-b py-2.5 first:pt-0 last:border-b-0 last:pb-0">
       <div className="flex items-center justify-between gap-3 text-sm">
         <span className="text-muted-foreground flex min-w-0 items-center gap-2 [&_svg]:size-4 [&_svg]:shrink-0">
           {LIMIT_ICONS[item.key]}
@@ -74,9 +74,9 @@ export default function PlanUsage({ plan, limits, status }: PlanUsageProps) {
 
   return (
     <BlockStateProvider state={state}>
-      <section className="@container flex flex-col gap-3">
+      <section className="@container flex flex-col gap-5">
         <header className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-0.5">
+          <div className="flex min-w-0 flex-col gap-1">
             <h2 className="font-semibold tracking-tight">
               {plan ? `${plan} plan` : "Your plan"}
             </h2>

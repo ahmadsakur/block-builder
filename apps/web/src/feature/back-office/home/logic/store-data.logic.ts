@@ -174,10 +174,7 @@ export function buildStoreData(
       },
       {
         formatter: (value: number) =>
-          formatCurrency(value, {
-            maximumFractionDigits: 2,
-            minimumFractionDigits: 2,
-          }),
+          formatCurrency(value, { precision: "exact" }),
         history: current.map((point) =>
           Number((point.revenue / point.orders).toFixed(2)),
         ),

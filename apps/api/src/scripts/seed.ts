@@ -46,13 +46,13 @@ async function seedRoot() {
 const DEMO_USERS = [
   {
     email: "free@demo.local",
-    name: "Free Demo",
+    name: "Maya Brooks",
     plan: "free",
     projects: ["Landing page", "Blog"],
   },
   {
     email: "pro@demo.local",
-    name: "Pro Demo",
+    name: "Daniel Ortiz",
     plan: "pro",
     projects: ["Storefront", "Docs site", "Mobile app", "Status page"],
   },
@@ -64,7 +64,16 @@ async function seedDemoUsers() {
     const existing = await db.query.user.findFirst({
       where: eq(user.email, demo.email),
     });
-    if (existing) continue;
+    if (existing) {
+      if (existing.name !== demo.name) {
+        await db
+          .update(user)
+          .set({ name: demo.name })
+          .where(eq(user.id, existing.id));
+        console.info(`Renamed demo user ${demo.email} to ${demo.name}.`);
+      }
+      continue;
+    }
     const { user: created } = await auth.api.createUser({
       body: {
         email: demo.email,
