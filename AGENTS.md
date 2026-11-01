@@ -31,7 +31,7 @@ pnpm only. Root scripts run each workspace's script through Turborepo.
 
 ## Automation
 
-- Claude Code hooks (`.claude/settings.json`): each edited file is Biome-fixed; on stop, lint + typecheck + tests for changed files run when the tree changed.
+- Claude Code hooks (`.claude/settings.json`): each edited file is Biome-fixed. Nothing runs on stop; run `pnpm check` yourself before calling work done.
 - Git hooks (`lefthook.yml`): pre-commit Biome-fixes staged files; pre-push runs typecheck + tests.
 - CI (`.github/workflows/ci.yml`): `pnpm check` on push and pull request.
 - Containers (`compose.yaml`, Podman or Docker): only to prove the built apps run. `podman compose --profile app up --build` builds both images and runs them with their own Postgres; daily dev stays on `pnpm dev`. Profile `s3` adds RustFS for the S3 storage driver.
