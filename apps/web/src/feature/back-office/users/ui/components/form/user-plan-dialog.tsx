@@ -7,9 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/_ui/dialog";
+import { planName } from "@/feature/back-office/_shared/logic/plans.logic";
 import type {
   ManagedUser,
-  PlanId,
+  Plan,
   UserPlanInput,
 } from "../../../types/users.types";
 import UserPlanForm from "./user-plan-form";
@@ -17,7 +18,7 @@ import UserPlanForm from "./user-plan-form";
 type UserPlanDialogProps = {
   open: boolean;
   user?: ManagedUser;
-  planName: (id: PlanId) => string;
+  plans: readonly Plan[];
   pending: boolean;
   error?: string;
   onOpenChange: (open: boolean) => void;
@@ -27,7 +28,7 @@ type UserPlanDialogProps = {
 export default function UserPlanDialog({
   open,
   user,
-  planName,
+  plans,
   pending,
   error,
   onOpenChange,
@@ -40,7 +41,7 @@ export default function UserPlanDialog({
           <DialogTitle>Change plan</DialogTitle>
           <DialogDescription>
             {user
-              ? `${user.name} (${user.email}) is on ${planName(user.plan)}.`
+              ? `${user.name} (${user.email}) is on ${planName(plans, user.plan)}.`
               : "Pick the plan for this user."}
           </DialogDescription>
         </DialogHeader>
@@ -48,7 +49,7 @@ export default function UserPlanDialog({
           <UserPlanForm
             key={user.id}
             user={user}
-            planName={planName}
+            plans={plans}
             pending={pending}
             error={error}
             onSubmit={onSubmit}

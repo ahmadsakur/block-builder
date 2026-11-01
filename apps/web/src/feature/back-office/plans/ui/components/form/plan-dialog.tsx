@@ -7,8 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/_ui/dialog";
-import type { Plan, PlanUpdateInput } from "../../../types/plans.types";
-import PlanForm from "./plan-form";
+import type { Plan, PlanInput } from "../../../types/plans.types";
+import PlanForm, { planFormCopy } from "./plan-form";
 
 type PlanDialogProps = {
   open: boolean;
@@ -16,7 +16,7 @@ type PlanDialogProps = {
   pending: boolean;
   error?: string;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (values: PlanUpdateInput) => void;
+  onSubmit: (values: PlanInput) => void;
 };
 
 export default function PlanDialog({
@@ -27,25 +27,22 @@ export default function PlanDialog({
   onOpenChange,
   onSubmit,
 }: PlanDialogProps) {
+  const copy = planFormCopy(plan);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{plan ? `Edit ${plan.name}` : "Edit plan"}</DialogTitle>
-          <DialogDescription>
-            Renaming a plan doesn't change its permissions or its users.
-          </DialogDescription>
+          <DialogTitle>{copy.title}</DialogTitle>
+          <DialogDescription>{copy.description}</DialogDescription>
         </DialogHeader>
-        {plan && (
-          <PlanForm
-            key={plan.id}
-            plan={plan}
-            pending={pending}
-            error={error}
-            onSubmit={onSubmit}
-            onCancel={() => onOpenChange(false)}
-          />
-        )}
+        <PlanForm
+          key={plan?.id ?? "new"}
+          plan={plan}
+          pending={pending}
+          error={error}
+          onSubmit={onSubmit}
+          onCancel={() => onOpenChange(false)}
+        />
       </DialogContent>
     </Dialog>
   );

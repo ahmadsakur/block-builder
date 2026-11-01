@@ -4,7 +4,7 @@ import type {
 } from "@block-builder/shared/entitlements";
 import type { Plan, PlanId } from "@block-builder/shared/plans";
 
-export const DEFAULT_PLANS: Plan[] = [
+export const DEFAULT_PLANS: Omit<Plan, "isDefault">[] = [
   {
     description: "For trying things out.",
     id: "free",

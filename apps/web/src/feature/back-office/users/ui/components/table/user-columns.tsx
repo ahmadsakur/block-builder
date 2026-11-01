@@ -7,8 +7,7 @@ import {
 import { userStatus } from "../../../logic/users.logic";
 import {
   type ManagedUser,
-  PLAN_IDS,
-  type PlanId,
+  type Plan,
   USER_STATUS_LABEL,
   type UserStatus,
 } from "../../../types/users.types";
@@ -28,13 +27,13 @@ const dateFormat = new Intl.DateTimeFormat("en-US", {
 });
 
 export function planOptions(
-  planName: (id: PlanId) => string,
+  plans: readonly Plan[],
   counts: Record<string, number> = {},
 ): FilterOption[] {
-  return PLAN_IDS.map((plan) => ({
-    count: counts[plan] ?? 0,
-    label: planName(plan),
-    value: plan,
+  return plans.map((plan) => ({
+    count: counts[plan.id] ?? 0,
+    label: plan.name,
+    value: plan.id,
   }));
 }
 

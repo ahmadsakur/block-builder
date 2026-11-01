@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { type ListQuery, parseSort, serializeSort } from "./list-query";
-import { PLAN_IDS, type PlanId, planIdSchema } from "./plans";
+import { type PlanId, planIdSchema } from "./plans";
 
 export interface ManagedUser {
   id: string;
@@ -37,7 +37,7 @@ export const userListParamsSchema = z.object({
       ),
     ),
   search: z.string().trim().max(100).default(""),
-  plan: csv.pipe(z.array(z.enum(PLAN_IDS, "Filter by a valid plan."))),
+  plan: csv.pipe(z.array(planIdSchema)),
 });
 
 export function userListSearchParams(query: UserListQuery): URLSearchParams {

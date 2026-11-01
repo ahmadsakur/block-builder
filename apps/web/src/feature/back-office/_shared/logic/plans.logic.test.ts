@@ -1,7 +1,9 @@
 import { expect, test } from "vitest";
 import { planName } from "./plans.logic";
 
-const PLANS = [{ description: "", id: "pro" as const, name: "Pro+", sort: 1 }];
+const PLANS = [
+  { description: "", id: "pro", isDefault: false, name: "Pro+", sort: 1 },
+];
 
 test("uses the plan's current name", () => {
   expect(planName(PLANS, "pro")).toBe("Pro+");

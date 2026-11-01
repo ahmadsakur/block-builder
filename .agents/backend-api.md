@@ -83,10 +83,17 @@ Every app endpoint lives under a version and a scope, so the URL says who may ca
 - The permission catalog is code: `FEATURES` in `@block-builder/shared/entitlements`.
   Each feature registers its permissions there, as a `flag` (on/off) or a `limit`
   (`enabled` + `limit`, `null` = unlimited). A key with no row for a plan is denied, so a
-  new permission is off for every plan until root turns it on.
-- Values per plan live in `plan_permission` (`modules/plans/`), edited by root through
-  `PUT /api/v1/root/permissions/:planId/:key`. `db:seed` inserts the default plans and
-  values from `plans.data.ts` without overwriting root's edits.
+  new permission is off for every plan until root turns it on. A permission can name
+  another in `requires`; saving applies `withRequirements`, so turning one on turns on
+  what it needs.
+- Plans are rows in `plan`, managed by root under `/api/v1/root/plans`: list (`PlanRow`
+  with members, a few faces and entitlements), create (id slugged from the name with
+  `planSlug`, `-2`… on a clash), `GET`/`PATCH`/`DELETE /:id`. `DEFAULT_PLAN` (`free`) is
+  where sign-ups land; it can't be deleted, and deleting any other plan moves its users
+  there first.
+- Values per plan live in `plan_permission` (`modules/plans/`), replaced as a whole by
+  `PUT /api/v1/root/plans/:id/permissions` with `{ entitlements }`. `db:seed` inserts the
+  default plans and values from `plans.data.ts` without overwriting root's edits.
 - Enforcement is server-side and lives in one place, `modules/plans/`:
   `withEntitlements(...keys)` loads the caller's entitlements, rejects missing flags and
   puts `entitlements` on the context; services call `assertRoom(entitlements, key, used)`

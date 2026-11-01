@@ -1,7 +1,4 @@
-export {
-  PLAN_IDS,
-  type PlanId,
-} from "@block-builder/shared/plans";
+export type { Plan, PlanId } from "@block-builder/shared/plans";
 export {
   type ManagedUser,
   type UserListQuery,

@@ -8,6 +8,7 @@ import {
   type PermissionKey,
   permissionDef,
 } from "@block-builder/shared/entitlements";
+import { type PlanId, planSlug } from "@block-builder/shared/plans";
 
 export class AccessError extends Error {
   constructor(
@@ -43,4 +44,13 @@ export function assertRoom(
     key,
     `Your plan allows ${limitOf(entitlements, key)} ${unit}. Upgrade for more.`,
   );
+}
+
+export function nextPlanId(name: string, taken: ReadonlySet<PlanId>): PlanId {
+  const base = planSlug(name);
+  if (!taken.has(base)) return base;
+  for (let suffix = 2; ; suffix++) {
+    const id = `${base}-${suffix}`;
+    if (!taken.has(id)) return id;
+  }
 }

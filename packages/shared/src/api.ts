@@ -15,9 +15,8 @@ export const API = {
       `${V1}/root/users/${encodeURIComponent(userId)}/plan`,
     plans: `${V1}/root/plans`,
     plan: (planId: string) => `${V1}/root/plans/${encodeURIComponent(planId)}`,
-    permissions: `${V1}/root/permissions`,
-    permission: (planId: string, key: PermissionKey) =>
-      `${V1}/root/permissions/${encodeURIComponent(planId)}/${encodeURIComponent(key)}`,
+    planPermissions: (planId: string) =>
+      `${V1}/root/plans/${encodeURIComponent(planId)}/permissions`,
   },
   user: {
     entitlements: `${V1}/user/entitlements`,

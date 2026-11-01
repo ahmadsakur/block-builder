@@ -7,15 +7,33 @@ import { Button } from "@/components/_ui/button";
 import { FieldError, FieldGroup } from "@/components/_ui/field";
 import {
   type Plan,
-  type PlanUpdateInput,
-  planUpdateSchema,
+  type PlanInput,
+  planInputSchema,
 } from "../../../types/plans.types";
 
+export function planFormCopy(plan?: Plan) {
+  return plan
+    ? {
+        cta: "Save changes",
+        description:
+          "Renaming a plan doesn't change its permissions or its users.",
+        pending: "Saving…",
+        title: `Edit ${plan.name}`,
+      }
+    : {
+        cta: "Create plan",
+        description:
+          "A new plan starts with every permission off. Pick what it includes next.",
+        pending: "Creating…",
+        title: "New plan",
+      };
+}
+
 type PlanFormProps = {
-  plan: Plan;
+  plan?: Plan;
   pending: boolean;
   error?: string;
-  onSubmit: (values: PlanUpdateInput) => void;
+  onSubmit: (values: PlanInput) => void;
   onCancel: () => void;
 };
 
@@ -26,9 +44,13 @@ export default function PlanForm({
   onSubmit,
   onCancel,
 }: PlanFormProps) {
-  const form = useForm<PlanUpdateInput>({
-    resolver: zodResolver(planUpdateSchema),
-    defaultValues: { description: plan.description, name: plan.name },
+  const copy = planFormCopy(plan);
+  const form = useForm<PlanInput>({
+    resolver: zodResolver(planInputSchema),
+    defaultValues: {
+      description: plan?.description ?? "",
+      name: plan?.name ?? "",
+    },
   });
 
   return (
@@ -52,7 +74,7 @@ export default function PlanForm({
           Cancel
         </Button>
         <Button type="submit" disabled={pending}>
-          {pending ? "Saving…" : "Save changes"}
+          {pending ? copy.pending : copy.cta}
         </Button>
       </div>
     </form>

@@ -1,7 +1,8 @@
 export {
   type Plan,
   type PlanId,
-  type PlanSummary,
-  type PlanUpdateInput,
-  planUpdateSchema,
+  type PlanInput,
+  type PlanPerson,
+  type PlanRow,
+  planInputSchema,
 } from "@block-builder/shared/plans";

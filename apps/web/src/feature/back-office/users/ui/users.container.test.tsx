@@ -14,8 +14,26 @@ vi.mock("../service/users.service", () => ({
 
 vi.mock("@/feature/back-office/_shared/service/plans.service", () => ({
   listPlans: vi.fn(async () => [
-    { description: "", id: "free", name: "Free", sort: 0, userCount: 1 },
-    { description: "", id: "pro", name: "Pro", sort: 1, userCount: 1 },
+    {
+      description: "",
+      entitlements: {},
+      faces: [],
+      id: "free",
+      isDefault: true,
+      members: 1,
+      name: "Free",
+      sort: 0,
+    },
+    {
+      description: "",
+      entitlements: {},
+      faces: [],
+      id: "pro",
+      isDefault: false,
+      members: 1,
+      name: "Pro",
+      sort: 1,
+    },
   ]),
 }));
 

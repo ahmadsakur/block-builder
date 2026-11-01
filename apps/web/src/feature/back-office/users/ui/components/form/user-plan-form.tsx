@@ -7,15 +7,14 @@ import { Button } from "@/components/_ui/button";
 import { FieldError, FieldGroup } from "@/components/_ui/field";
 import {
   type ManagedUser,
-  PLAN_IDS,
-  type PlanId,
+  type Plan,
   type UserPlanInput,
   userPlanSchema,
 } from "../../../types/users.types";
 
 type UserPlanFormProps = {
   user: ManagedUser;
-  planName: (id: PlanId) => string;
+  plans: readonly Plan[];
   pending: boolean;
   error?: string;
   onSubmit: (values: UserPlanInput) => void;
@@ -24,7 +23,7 @@ type UserPlanFormProps = {
 
 export default function UserPlanForm({
   user,
-  planName,
+  plans,
   pending,
   error,
   onSubmit,
@@ -34,10 +33,7 @@ export default function UserPlanForm({
     resolver: zodResolver(userPlanSchema),
     defaultValues: { plan: user.plan },
   });
-  const options = PLAN_IDS.map((plan) => ({
-    label: planName(plan),
-    value: plan,
-  }));
+  const options = plans.map((plan) => ({ label: plan.name, value: plan.id }));
 
   return (
     <form

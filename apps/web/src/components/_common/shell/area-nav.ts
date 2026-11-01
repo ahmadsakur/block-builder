@@ -15,6 +15,15 @@ export function areaPages(nav: AreaNav): NavItem[] {
 }
 
 export function areaBreadcrumbs(nav: AreaNav, pathname: string): Crumb[] {
-  const current = areaPages(nav).find((item) => item.href === pathname);
-  return [nav.root, { label: current?.title ?? "Page" }];
+  const pages = areaPages(nav);
+  const current = pages.find((item) => item.href === pathname);
+  if (current) return [nav.root, { label: current.title }];
+  const parent = pages.find((item) => pathname.startsWith(`${item.href}/`));
+  return parent
+    ? [
+        nav.root,
+        { href: parent.href, label: parent.title },
+        { label: "Details" },
+      ]
+    : [nav.root, { label: "Page" }];
 }

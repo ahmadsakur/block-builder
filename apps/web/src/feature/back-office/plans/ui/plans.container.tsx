@@ -1,40 +1,45 @@
 "use client";
 
-import { CloudAlertIcon, RotateCwIcon, ShieldCheckIcon } from "lucide-react";
-import Link from "next/link";
+import { CloudAlertIcon, PlusIcon, RotateCwIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import EmptyState from "@/components/_common/empty-state";
-import { Button, buttonVariants } from "@/components/_ui/button";
+import { Button } from "@/components/_ui/button";
 import { usePlansQuery } from "@/feature/back-office/_shared/query/plans.query";
 import { queryStatus } from "@/lib/query-status";
-import { useUpdatePlan } from "../query/plans.query";
-import type { PlanSummary, PlanUpdateInput } from "../types/plans.types";
+import { useSavePlan } from "../query/plans.query";
+import type { PlanInput, PlanRow } from "../types/plans.types";
 import PlanDialog from "./components/form/plan-dialog";
 import PlansTable from "./components/plans-table";
 
-type Target = { open: boolean; plan?: PlanSummary };
+type Target = { open: boolean; plan?: PlanRow };
 
 export default function PlansContainer() {
+  const router = useRouter();
   const plans = usePlansQuery();
-  const update = useUpdatePlan();
+  const save = useSavePlan();
   const [editing, setEditing] = useState<Target>({ open: false });
   const status = queryStatus(plans);
 
-  const openEditor = (plan: PlanSummary) => {
-    update.reset();
+  const openEditor = (plan?: PlanRow) => {
+    save.reset();
     setEditing({ open: true, plan });
   };
 
-  const submit = (input: PlanUpdateInput) => {
-    const plan = editing.plan;
-    if (!plan) return;
-    update.mutate(
-      { id: plan.id, input },
+  const submit = (input: PlanInput) => {
+    const id = editing.plan?.id;
+    save.mutate(
+      { id, input },
       {
         onSuccess: (saved) => {
           setEditing((current) => ({ ...current, open: false }));
-          toast.success(`${saved.name} saved`);
+          if (id) {
+            toast.success(`${saved.name} saved`);
+            return;
+          }
+          toast.success(`${saved.name} created`);
+          router.push(`/back-office/plans/${saved.id}`);
         },
       },
     );
@@ -46,17 +51,13 @@ export default function PlansContainer() {
         <div className="flex flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight">Plans</h1>
           <p className="text-muted-foreground">
-            Every user is on one plan. What a plan allows is set under
-            Permissions.
+            Every user is on one plan. Open a plan to choose what it includes.
           </p>
         </div>
-        <Link
-          href="/back-office/permissions"
-          className={buttonVariants({ variant: "outline" })}
-        >
-          <ShieldCheckIcon />
-          Edit permissions
-        </Link>
+        <Button onClick={() => openEditor()}>
+          <PlusIcon />
+          New plan
+        </Button>
       </header>
       {status === "error" ? (
         <EmptyState
@@ -82,8 +83,8 @@ export default function PlansContainer() {
       <PlanDialog
         open={editing.open}
         plan={editing.plan}
-        pending={update.isPending}
-        error={update.error?.message}
+        pending={save.isPending}
+        error={save.error?.message}
         onOpenChange={(open) => setEditing((current) => ({ ...current, open }))}
         onSubmit={submit}
       />

@@ -17,5 +17,7 @@ test("defaults missing params and drops unknown sort fields and plans", () => {
   expect(userListParamsSchema.safeParse({ sort: "password.asc" }).data).toEqual(
     { page: 1, pageSize: 10, plan: [], search: "", sort: [] },
   );
-  expect(userListParamsSchema.safeParse({ plan: "gold" }).success).toBe(false);
+  expect(userListParamsSchema.safeParse({ plan: "Gold Plan" }).success).toBe(
+    false,
+  );
 });

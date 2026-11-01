@@ -1,6 +1,11 @@
 import { resolveEntitlements } from "@block-builder/shared/entitlements";
 import { describe, expect, test } from "vitest";
-import { AccessError, assertAllowed, assertRoom } from "./plans.logic";
+import {
+  AccessError,
+  assertAllowed,
+  assertRoom,
+  nextPlanId,
+} from "./plans.logic";
 
 const entitlements = resolveEntitlements([
   { key: "projects.max", enabled: true, limit: 3 },
@@ -43,5 +48,15 @@ describe("assertRoom", () => {
     expect(error?.message).toBe(
       "Your plan allows 3 projects. Upgrade for more.",
     );
+  });
+});
+
+describe("nextPlanId", () => {
+  test("slugs the name", () => {
+    expect(nextPlanId("Team Plus", new Set(["free", "pro"]))).toBe("team-plus");
+  });
+
+  test("adds a suffix when the slug is taken", () => {
+    expect(nextPlanId("Pro", new Set(["pro", "pro-2"]))).toBe("pro-3");
   });
 });

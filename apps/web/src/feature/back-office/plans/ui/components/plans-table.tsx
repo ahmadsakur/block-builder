@@ -17,13 +17,15 @@ import {
   DataTableRow,
   DataTableStateRows,
 } from "@/components/dashboardblocks/table";
-import { formatNumber } from "@/lib/dashboardblocks/format";
-import type { PlanSummary } from "../../types/plans.types";
+import { Tag } from "@/components/dashboardblocks/tag";
+import { memberLabel, permissionSummary } from "../../logic/plans.logic";
+import type { PlanRow } from "../../types/plans.types";
+import PlanFaces from "./plan-faces";
 
 type PlansTableProps = {
-  plans: PlanSummary[];
+  plans: PlanRow[];
   status?: BlockStatus;
-  onEdit: (plan: PlanSummary) => void;
+  onEdit: (plan: PlanRow) => void;
 };
 
 export default function PlansTable({ plans, status, onEdit }: PlansTableProps) {
@@ -34,31 +36,45 @@ export default function PlansTable({ plans, status, onEdit }: PlansTableProps) {
           <DataTableHeader>
             <DataTableRow>
               <DataTableHead>Plan</DataTableHead>
-              <DataTableHead align="end">Users</DataTableHead>
+              <DataTableHead>Users</DataTableHead>
+              <DataTableHead align="end">Permissions</DataTableHead>
               <DataTableHead align="end">
                 <span className="sr-only">Actions</span>
               </DataTableHead>
             </DataTableRow>
           </DataTableHeader>
           <DataTableBody>
-            <DataTableStateRows colSpan={3} rows={2} />
+            <DataTableStateRows colSpan={4} rows={2} />
             {!status &&
               plans.map((plan) => (
                 <DataTableRow key={plan.id}>
                   <DataTableCell primary>
-                    <span className="block">{plan.name}</span>
+                    <span className="flex items-center gap-2">
+                      <Link
+                        href={`/back-office/plans/${plan.id}`}
+                        className="underline-offset-4 hover:underline"
+                      >
+                        {plan.name}
+                      </Link>
+                      {plan.isDefault && <Tag>Default</Tag>}
+                    </span>
                     <span className="text-muted-foreground block text-xs font-normal">
                       {plan.description || "No description"}
                     </span>
                   </DataTableCell>
-                  <DataTableCell align="end">
-                    <Link
-                      href={`/back-office/users?plan=${plan.id}`}
-                      className="tabular-nums underline-offset-4 hover:underline"
-                    >
-                      {formatNumber(plan.userCount)}{" "}
-                      {plan.userCount === 1 ? "user" : "users"}
-                    </Link>
+                  <DataTableCell>
+                    <span className="flex items-center gap-2">
+                      <PlanFaces faces={plan.faces} />
+                      <Link
+                        href={`/back-office/users?plan=${plan.id}`}
+                        className="tabular-nums whitespace-nowrap underline-offset-4 hover:underline"
+                      >
+                        {memberLabel(plan.members)}
+                      </Link>
+                    </span>
+                  </DataTableCell>
+                  <DataTableCell align="end" className="tabular-nums">
+                    {permissionSummary(plan.entitlements)}
                   </DataTableCell>
                   <DataTableCell align="end" className="w-12">
                     <Button

@@ -6,20 +6,16 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { parseAsArrayOf, parseAsStringLiteral, useQueryStates } from "nuqs";
+import { parseAsArrayOf, parseAsString, useQueryStates } from "nuqs";
 import { planKeys } from "@/feature/back-office/_shared/query/plans.query";
 import { LIST_URL_KEYS, listQueryParsers } from "@/lib/list-query";
 import { USERS_DEFAULT_SORT, USERS_PAGE_SIZE } from "../data/users.data";
 import { listUsers, setUserPlan } from "../service/users.service";
-import {
-  PLAN_IDS,
-  type UserListQuery,
-  type UserPlanInput,
-} from "../types/users.types";
+import type { UserListQuery, UserPlanInput } from "../types/users.types";
 
 const userListParams = {
   ...listQueryParsers({ pageSize: USERS_PAGE_SIZE, sort: USERS_DEFAULT_SORT }),
-  plan: parseAsArrayOf(parseAsStringLiteral(PLAN_IDS)).withDefault([]),
+  plan: parseAsArrayOf(parseAsString).withDefault([]),
 };
 
 export function useUserListParams() {

@@ -1,7 +1,7 @@
 import { API } from "@block-builder/shared/api";
-import type { PlanSummary } from "@block-builder/shared/plans";
+import type { PlanRow } from "@block-builder/shared/plans";
 import { api } from "@/lib/api";
 
-export function listPlans(): Promise<PlanSummary[]> {
+export function listPlans(): Promise<PlanRow[]> {
   return api(API.root.plans);
 }

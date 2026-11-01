@@ -1,10 +1,10 @@
 "use client";
 
 import { createContext, useContext } from "react";
-import type { ManagedUser, PlanId } from "../../../types/users.types";
+import type { ManagedUser, Plan } from "../../../types/users.types";
 
 type UserTable = {
-  planName: (id: PlanId) => string;
+  plans: readonly Plan[];
   onChangePlan: (user: ManagedUser) => void;
 };
 

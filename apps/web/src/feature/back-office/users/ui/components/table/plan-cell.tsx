@@ -1,22 +1,16 @@
 "use client";
 
-import {
-  StatusLabel,
-  type StatusTone,
-} from "@/components/dashboardblocks/status-label";
+import { StatusLabel } from "@/components/dashboardblocks/status-label";
+import { planName } from "@/feature/back-office/_shared/logic/plans.logic";
 import type { PlanId } from "../../../types/users.types";
 import { useUserTable } from "./user-table-context";
 
-const PLAN_TONE: Record<PlanId, StatusTone> = {
-  free: "neutral",
-  pro: "info",
-};
-
 export default function PlanCell({ plan }: { plan: PlanId }) {
-  const table = useUserTable();
+  const plans = useUserTable()?.plans;
+  const found = plans?.find((item) => item.id === plan);
   return (
-    <StatusLabel tone={PLAN_TONE[plan]}>
-      {table?.planName(plan) ?? plan}
+    <StatusLabel tone={!found || found.isDefault ? "neutral" : "info"}>
+      {planName(plans, plan)}
     </StatusLabel>
   );
 }

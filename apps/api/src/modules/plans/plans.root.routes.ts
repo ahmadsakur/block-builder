@@ -1,42 +1,65 @@
 import {
-  isPermissionKey,
-  permissionValueSchema,
-} from "@block-builder/shared/entitlements";
-import { planIdSchema, planUpdateSchema } from "@block-builder/shared/plans";
+  planIdSchema,
+  planInputSchema,
+  planPermissionsSchema,
+} from "@block-builder/shared/plans";
 import { Hono } from "hono";
 import { httpError, parse, readJson } from "../../lib/http";
 import type { AuthEnv } from "../auth/auth.middleware";
 import {
+  createPlan,
+  deletePlan,
   getPlan,
-  listPlanSummaries,
-  permissionMatrix,
-  setPermission,
+  getPlanDetail,
+  listPlanRows,
+  setPlanPermissions,
   updatePlan,
 } from "./plans.service";
 
 const PLAN_NOT_FOUND = "This plan doesn't exist.";
 
+function notFound() {
+  return httpError(404, { message: PLAN_NOT_FOUND });
+}
+
 export const rootPlans = new Hono<AuthEnv>()
-  .get("/", async (c) => c.json(await listPlanSummaries()))
+  .get("/", async (c) => c.json(await listPlanRows()))
+  .post("/", async (c) => {
+    const input = parse(planInputSchema, await readJson(c.req.raw));
+    return c.json(await createPlan(input), 201);
+  })
+  .get("/:id", async (c) => {
+    const detail = await getPlanDetail(parse(planIdSchema, c.req.param("id")));
+    if (!detail) throw notFound();
+    return c.json(detail);
+  })
   .patch("/:id", async (c) => {
     const id = parse(planIdSchema, c.req.param("id"));
-    const input = parse(planUpdateSchema, await readJson(c.req.raw));
+    const input = parse(planInputSchema, await readJson(c.req.raw));
     const updated = await updatePlan(id, input);
-    if (!updated) throw httpError(404, { message: PLAN_NOT_FOUND });
+    if (!updated) throw notFound();
     return c.json(updated);
-  });
-
-export const rootPermissions = new Hono<AuthEnv>()
-  .get("/", async (c) => c.json(await permissionMatrix()))
-  .put("/:planId/:key", async (c) => {
-    const planId = parse(planIdSchema, c.req.param("planId"));
-    const key = c.req.param("key");
-    if (!isPermissionKey(key)) {
-      throw httpError(404, { message: "This permission doesn't exist." });
+  })
+  .delete("/:id", async (c) => {
+    const found = await getPlan(parse(planIdSchema, c.req.param("id")));
+    if (!found) throw notFound();
+    if (found.isDefault) {
+      throw httpError(409, {
+        message: "The default plan can't be deleted. New sign-ups join it.",
+      });
     }
-    const value = parse(permissionValueSchema, await readJson(c.req.raw));
-    if (!(await getPlan(planId))) {
-      throw httpError(404, { message: PLAN_NOT_FOUND });
-    }
-    return c.json(await setPermission(planId, key, value));
+    if (!(await deletePlan(found.id))) throw notFound();
+    return c.body(null, 204);
+  })
+  .put("/:id/permissions", async (c) => {
+    const id = parse(planIdSchema, c.req.param("id"));
+    const { entitlements } = parse(
+      planPermissionsSchema,
+      await readJson(c.req.raw),
+    );
+    if (!(await getPlan(id))) throw notFound();
+    await setPlanPermissions(id, entitlements);
+    const detail = await getPlanDetail(id);
+    if (!detail) throw notFound();
+    return c.json(detail);
   });

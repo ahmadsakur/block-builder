@@ -1,6 +1,8 @@
 import { describe, expect, test } from "vitest";
 import {
   DENIED,
+  dependentsOf,
+  grantedCount,
   hasRoom,
   isAllowed,
   isPermissionKey,
@@ -8,6 +10,7 @@ import {
   PERMISSION_KEYS,
   permissionValueSchema,
   resolveEntitlements,
+  withRequirements,
 } from "./entitlements";
 
 describe("resolveEntitlements", () => {
@@ -79,4 +82,31 @@ test("permissionValueSchema rejects negative and fractional limits", () => {
   expect(
     permissionValueSchema.safeParse({ enabled: true, limit: null }).success,
   ).toBe(true);
+});
+
+describe("requirements", () => {
+  test("turning a permission on turns on what it needs", () => {
+    const entitlements = withRequirements(
+      resolveEntitlements([
+        { key: "projects.export", enabled: true, limit: null },
+        { key: "projects.max", enabled: false, limit: 3 },
+      ]),
+    );
+    expect(entitlements["projects.max"]).toEqual({ enabled: true, limit: 3 });
+  });
+
+  test("dependentsOf lists what needs a permission", () => {
+    expect(dependentsOf("projects.max")).toEqual(["projects.export"]);
+    expect(dependentsOf("analytics.view")).toEqual([]);
+  });
+
+  test("grantedCount counts enabled permissions", () => {
+    expect(
+      grantedCount(
+        resolveEntitlements([
+          { key: "analytics.view", enabled: true, limit: null },
+        ]),
+      ),
+    ).toBe(1);
+  });
 });

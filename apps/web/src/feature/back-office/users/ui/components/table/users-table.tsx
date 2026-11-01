@@ -26,7 +26,7 @@ import {
   DataTableReset,
 } from "@/components/dashboardblocks/data-table";
 import type { ListResult } from "@/lib/list-query";
-import type { ManagedUser, PlanId } from "../../../types/users.types";
+import type { ManagedUser, Plan } from "../../../types/users.types";
 import { planOptions, USER_COLUMNS } from "./user-columns";
 import { UserTableProvider } from "./user-table-context";
 
@@ -37,7 +37,7 @@ type UsersTableProps = {
   status?: BlockStatus;
   busy: boolean;
   state: ServerTableState;
-  planName: (id: PlanId) => string;
+  plans: readonly Plan[];
   onStateChange: (patch: Partial<ServerTableState>) => void;
   onChangePlan: (user: ManagedUser) => void;
   onRetry: () => void;
@@ -48,7 +48,7 @@ export default function UsersTable({
   status,
   busy,
   state,
-  planName,
+  plans,
   onStateChange,
   onChangePlan,
   onRetry,
@@ -88,7 +88,7 @@ export default function UsersTable({
           <div className="ml-auto flex flex-wrap items-center gap-2">
             <FilterMenu
               label="Plan"
-              options={planOptions(planName, result?.facets?.plan)}
+              options={planOptions(plans, result?.facets?.plan)}
               value={state.filters.plan ?? []}
               onChange={(value) => setFilter("plan", value)}
               disabled={unavailable}
@@ -103,7 +103,7 @@ export default function UsersTable({
             />
           </div>
         </div>
-        <UserTableProvider value={{ onChangePlan, planName }}>
+        <UserTableProvider value={{ onChangePlan, plans }}>
           {status === "error" ? (
             <EmptyState
               bordered

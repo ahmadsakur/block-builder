@@ -1,10 +1,4 @@
-import {
-  HouseIcon,
-  LayersIcon,
-  ShieldCheckIcon,
-  UserIcon,
-  UsersIcon,
-} from "lucide-react";
+import { HouseIcon, LayersIcon, UserIcon, UsersIcon } from "lucide-react";
 import type { AreaNav } from "@/components/_common/shell/area-nav";
 
 export const BACK_OFFICE_NAV: AreaNav = {
@@ -20,11 +14,6 @@ export const BACK_OFFICE_NAV: AreaNav = {
       items: [
         { href: "/back-office/users", icon: <UsersIcon />, title: "Users" },
         { href: "/back-office/plans", icon: <LayersIcon />, title: "Plans" },
-        {
-          href: "/back-office/permissions",
-          icon: <ShieldCheckIcon />,
-          title: "Permissions",
-        },
       ],
     },
   ],

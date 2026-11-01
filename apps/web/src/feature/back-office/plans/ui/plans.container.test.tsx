@@ -1,40 +1,63 @@
+import { resolveEntitlements } from "@block-builder/shared/entitlements";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, expect, test, vi } from "vitest";
 import { listPlans } from "@/feature/back-office/_shared/service/plans.service";
-import { updatePlan } from "../service/plans.service";
-import type { PlanSummary } from "../types/plans.types";
+import { createPlan, updatePlan } from "../service/plans.service";
+import type { PlanRow } from "../types/plans.types";
 import PlansContainer from "./plans.container";
+
+const push = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
+}));
 
 vi.mock("@/feature/back-office/_shared/service/plans.service", () => ({
   listPlans: vi.fn(),
 }));
 
 vi.mock("../service/plans.service", () => ({
+  createPlan: vi.fn(),
   updatePlan: vi.fn(),
 }));
 
 const LOAD_TIMEOUT = { timeout: 3000 };
 
-let plans: PlanSummary[];
+let plans: PlanRow[];
+
+function row(patch: Partial<PlanRow>): PlanRow {
+  return {
+    description: "For trying things out.",
+    entitlements: resolveEntitlements([]),
+    faces: [],
+    id: "free",
+    isDefault: true,
+    members: 1,
+    name: "Free",
+    sort: 0,
+    ...patch,
+  };
+}
 
 beforeEach(() => {
+  push.mockReset();
   plans = [
-    {
-      description: "For trying things out.",
-      id: "free",
-      name: "Free",
-      sort: 0,
-      userCount: 1,
-    },
-    {
+    row({}),
+    row({
       description: "For people who ship.",
+      entitlements: resolveEntitlements([
+        { key: "analytics.view", enabled: true, limit: null },
+        { key: "projects.max", enabled: true, limit: 25 },
+      ]),
+      faces: [{ id: "u1", name: "Ana Lima" }],
       id: "pro",
+      isDefault: false,
+      members: 4,
       name: "Pro",
       sort: 1,
-      userCount: 4,
-    },
+    }),
   ];
   vi.mocked(listPlans).mockImplementation(async () => plans);
   vi.mocked(updatePlan).mockImplementation(async (id, input) => {
@@ -44,6 +67,11 @@ beforeEach(() => {
     const saved = plans.find((plan) => plan.id === id);
     if (!saved) throw new Error("This plan doesn't exist.");
     return saved;
+  });
+  vi.mocked(createPlan).mockImplementation(async (input) => {
+    const created = row({ ...input, id: "team", isDefault: false, sort: 2 });
+    plans = [...plans, created];
+    return created;
   });
 });
 
@@ -58,15 +86,21 @@ function renderPlans() {
   );
 }
 
-test("lists plans with links to their users", async () => {
+test("lists plans with their users and permissions", async () => {
   renderPlans();
   expect(
     await screen.findByText("For people who ship.", {}, LOAD_TIMEOUT),
   ).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Pro" })).toHaveAttribute(
+    "href",
+    "/back-office/plans/pro",
+  );
   expect(screen.getByRole("link", { name: "4 users" })).toHaveAttribute(
     "href",
     "/back-office/users?plan=pro",
   );
+  expect(screen.getByText("2 of 3")).toBeInTheDocument();
+  expect(screen.getByText("Default")).toBeInTheDocument();
 });
 
 test("editing a plan saves the new name", async () => {
@@ -85,8 +119,27 @@ test("editing a plan saves the new name", async () => {
     name: "Pro Plus",
   });
   expect(
-    await screen.findByText("Pro Plus", {}, LOAD_TIMEOUT),
+    await screen.findByRole("link", { name: "Pro Plus" }, LOAD_TIMEOUT),
   ).toBeInTheDocument();
+  expect(push).not.toHaveBeenCalled();
+}, 15000);
+
+test("creating a plan opens it to pick permissions", async () => {
+  const user = userEvent.setup();
+  renderPlans();
+  await user.click(
+    await screen.findByRole("button", { name: "New plan" }, LOAD_TIMEOUT),
+  );
+  await user.type(await screen.findByLabelText("Name"), "Team");
+  await user.click(screen.getByRole("button", { name: "Create plan" }));
+
+  expect(vi.mocked(createPlan)).toHaveBeenCalledWith({
+    description: "",
+    name: "Team",
+  });
+  await vi.waitFor(() =>
+    expect(push).toHaveBeenCalledWith("/back-office/plans/team"),
+  );
 }, 15000);
 
 test("blocks an empty name", async () => {

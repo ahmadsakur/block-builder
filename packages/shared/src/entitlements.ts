@@ -9,11 +9,13 @@ export interface PermissionDef {
   label: string;
   description: string;
   unit?: string;
+  requires?: string;
 }
 
 export interface FeatureDef {
   key: string;
   label: string;
+  description: string;
   permissions: readonly PermissionDef[];
 }
 
@@ -21,6 +23,7 @@ export const FEATURES = [
   {
     key: "projects",
     label: "Projects",
+    description: "Creating, keeping and exporting projects.",
     permissions: [
       {
         key: "projects.max",
@@ -34,12 +37,14 @@ export const FEATURES = [
         kind: "flag",
         label: "Export projects",
         description: "Download the project list as CSV.",
+        requires: "projects.max",
       },
     ],
   },
   {
     key: "analytics",
     label: "Analytics",
+    description: "Traffic and conversion reports.",
     permissions: [
       {
         key: "analytics.view",
@@ -126,6 +131,40 @@ export function hasRoom(
   const limit = limitOf(entitlements, key);
   return limit === null || used < limit;
 }
+
+export function requirementOf(key: PermissionKey): PermissionKey | undefined {
+  const requires = permissionDef(key).requires;
+  return requires && isPermissionKey(requires) ? requires : undefined;
+}
+
+export function dependentsOf(key: PermissionKey): PermissionKey[] {
+  return PERMISSION_KEYS.filter((other) => requirementOf(other) === key);
+}
+
+export function withRequirements(entitlements: Entitlements): Entitlements {
+  const next = { ...entitlements };
+  for (const key of PERMISSION_KEYS) {
+    if (!next[key].enabled) continue;
+    for (
+      let required = requirementOf(key);
+      required && !next[required].enabled;
+      required = requirementOf(required)
+    ) {
+      next[required] = { ...next[required], enabled: true };
+    }
+  }
+  return next;
+}
+
+export function grantedCount(entitlements: Entitlements): number {
+  return PERMISSION_KEYS.filter((key) => entitlements[key].enabled).length;
+}
+
+export const entitlementsSchema = z.object(
+  Object.fromEntries(
+    PERMISSION_KEYS.map((key) => [key, permissionValueSchema]),
+  ) as Record<PermissionKey, typeof permissionValueSchema>,
+);
 
 export const ACCESS_ERROR_CODES = ["FEATURE_LOCKED", "LIMIT_REACHED"] as const;
 export type AccessErrorCode = (typeof ACCESS_ERROR_CODES)[number];
