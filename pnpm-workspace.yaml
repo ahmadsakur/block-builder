@@ -1,7 +1,15 @@
+packages:
+  - apps/*
+  - packages/*
+
 ignoredBuiltDependencies:
   # Hooks are installed by the root `prepare` script instead.
   - lefthook
   - sharp
   - unrs-resolver
+
+# Third-party .d.ts files in the store resolve React types from the root.
+publicHoistPattern:
+  - "@types/*"
 
 shellEmulator: true

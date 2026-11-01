@@ -1,0 +1,79 @@
+name: block-builder
+
+x-api-env: &api-env
+  DATABASE_URL: postgres://postgres:postgres@postgres:5432/block_builder
+  BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-compose-only-secret-change-me-0123456789}
+  BETTER_AUTH_URL: http://localhost:3000
+  SMTP_HOST: mailpit
+  SMTP_PORT: "1025"
+  STORAGE_DRIVER: local
+  STORAGE_DIR: /data/storage
+  ROOT_EMAIL: ${ROOT_EMAIL:-root@example.com}
+  ROOT_PASSWORD: ${ROOT_PASSWORD:-root-password-change-me}
+
+services:
+  postgres:
+    profiles: [app]
+    image: docker.io/library/postgres:18-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: block_builder
+    ports: ["5432:5432"]
+    volumes: [postgres:/var/lib/postgresql]
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "block_builder"]
+      interval: 2s
+      retries: 30
+
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.31
+    ports: ["1025:1025", "8025:8025"]
+
+  storage:
+    profiles: [s3]
+    image: docker.io/rustfs/rustfs:1.0.3
+    environment:
+      RUSTFS_ACCESS_KEY: rustfsadmin
+      RUSTFS_SECRET_KEY: rustfsadmin
+      RUSTFS_VOLUMES: /data
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+    ports: ["9000:9000", "9001:9001"]
+    volumes: [storage:/data]
+
+  api:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      <<: *api-env
+      NODE_ENV: production
+    ports: ["3001:3001"]
+    volumes: [uploads:/data/storage]
+    depends_on:
+      postgres: { condition: service_healthy }
+      mailpit: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3001/api/health"]
+      interval: 3s
+      retries: 40
+
+  web:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        API_URL: http://api:3001
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
+    ports: ["3000:3000"]
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  postgres:
+  storage:
+  uploads:

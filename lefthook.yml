@@ -5,7 +5,7 @@ pre-commit:
   jobs:
     - name: biome
       glob: "*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,json,jsonc,css}"
-      run: pnpm exec biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      run: pnpm exec biome check --write --staged --no-errors-on-unmatched --files-ignore-unknown=true
       stage_fixed: true
 
 pre-push:

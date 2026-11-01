@@ -1,0 +1,29 @@
+{
+  "name": "@block-builder/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./analytics": "./src/analytics.ts",
+    "./api": "./src/api.ts",
+    "./auth": "./src/auth.ts",
+    "./avatar": "./src/avatar.ts",
+    "./entitlements": "./src/entitlements.ts",
+    "./list-query": "./src/list-query.ts",
+    "./plans": "./src/plans.ts",
+    "./projects": "./src/projects.ts",
+    "./users": "./src/users.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@block-builder/tsconfig": "workspace:*",
+    "typescript": "^5",
+    "vitest": "^5.0.5"
+  }
+}
