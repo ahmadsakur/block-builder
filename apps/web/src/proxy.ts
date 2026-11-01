@@ -8,7 +8,7 @@ import type { MyEntitlements } from "@block-builder/shared/plans";
 import { getSessionCookie } from "better-auth/cookies";
 import { type NextRequest, NextResponse } from "next/server";
 import { env } from "@/env";
-import { gateFor, proxyRedirect, upgradeHref } from "@/lib/auth/routes";
+import { gateFor, proGate, proxyRedirect } from "@/lib/auth/routes";
 
 async function fetchApi<T>(
   request: NextRequest,
@@ -43,9 +43,10 @@ export async function proxy(request: NextRequest) {
   const target = proxyRedirect(pathname, role);
   if (target) return NextResponse.redirect(new URL(target, request.url));
   const permission = role === "user" ? gateFor(pathname) : undefined;
-  if (permission && !(await planAllows(request, permission))) {
-    return NextResponse.redirect(new URL(upgradeHref(permission), request.url));
-  }
+  const locked = permission ? !(await planAllows(request, permission)) : false;
+  const step = proGate(new URL(request.nextUrl.href), locked);
+  if (step?.kind === "rewrite") return NextResponse.rewrite(step.url);
+  if (step?.kind === "redirect") return NextResponse.redirect(step.url);
   return NextResponse.next();
 }
 

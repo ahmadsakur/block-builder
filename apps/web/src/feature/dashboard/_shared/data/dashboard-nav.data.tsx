@@ -2,11 +2,9 @@ import {
   ChartLineIcon,
   FolderKanbanIcon,
   HouseIcon,
-  SparklesIcon,
   UserIcon,
 } from "lucide-react";
 import type { AreaNav } from "@/components/_common/shell/area-nav";
-import { UPGRADE_PATH } from "@/lib/auth/routes";
 import NavLockBadge from "../ui/nav-lock-badge";
 
 export const DASHBOARD_NAV: AreaNav = {
@@ -27,10 +25,6 @@ export const DASHBOARD_NAV: AreaNav = {
           title: "Analytics",
         },
       ],
-    },
-    {
-      label: "Plan",
-      items: [{ href: UPGRADE_PATH, icon: <SparklesIcon />, title: "Upgrade" }],
     },
   ],
   account: [

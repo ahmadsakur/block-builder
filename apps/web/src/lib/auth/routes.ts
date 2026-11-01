@@ -47,3 +47,20 @@ export function gateFor(pathname: string): PermissionKey | undefined {
 export function upgradeHref(permission: PermissionKey): string {
   return `${UPGRADE_PATH}?${new URLSearchParams({ permission })}`;
 }
+
+export const REQUIRE_PRO_PARAM = "requirePro";
+export const PRO_REQUIRED_PATH = "/pro-required";
+
+export type ProGateStep = { kind: "redirect" | "rewrite"; url: URL };
+
+export function proGate(url: URL, locked: boolean): ProGateStep | null {
+  const flagged = url.searchParams.get(REQUIRE_PRO_PARAM) === "true";
+  if (locked && flagged) {
+    return { kind: "rewrite", url: new URL(PRO_REQUIRED_PATH, url) };
+  }
+  if (locked === flagged) return null;
+  const next = new URL(url);
+  if (locked) next.searchParams.set(REQUIRE_PRO_PARAM, "true");
+  else next.searchParams.delete(REQUIRE_PRO_PARAM);
+  return { kind: "redirect", url: next };
+}

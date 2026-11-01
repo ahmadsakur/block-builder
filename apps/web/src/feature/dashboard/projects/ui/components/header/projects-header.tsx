@@ -1,6 +1,7 @@
 import { DownloadIcon, LockIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
-import { Button, buttonVariants } from "@/components/_ui/button";
+import ProLock from "@/components/_common/pro-lock";
+import { Button } from "@/components/_ui/button";
 import { usageLabel } from "@/feature/dashboard/_shared/logic/entitlements.logic";
 import type { LimitState } from "@/feature/dashboard/_shared/types/entitlements.types";
 import { upgradeHref } from "@/lib/auth/routes";
@@ -44,15 +45,7 @@ export default function ProjectsHeader({
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
-        {exportAllowed === false ? (
-          <Link
-            href={upgradeHref("projects.export")}
-            className={buttonVariants({ variant: "outline" })}
-          >
-            <LockIcon />
-            Export CSV
-          </Link>
-        ) : (
+        <ProLock locked={exportAllowed === false}>
           <Button
             variant="outline"
             disabled={exporting || exportAllowed === undefined}
@@ -61,7 +54,7 @@ export default function ProjectsHeader({
             <DownloadIcon />
             {exporting ? "Exporting…" : "Export CSV"}
           </Button>
-        )}
+        </ProLock>
         <Button disabled={full} onClick={onCreate}>
           {full ? <LockIcon /> : <PlusIcon />}
           New project

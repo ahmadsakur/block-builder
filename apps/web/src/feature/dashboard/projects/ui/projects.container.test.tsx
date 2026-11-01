@@ -67,10 +67,10 @@ test("a free plan at its limit locks New and Export behind upgrade links", async
   expect(
     screen.getByRole("link", { name: "Upgrade for more" }),
   ).toHaveAttribute("href", "/dashboard/upgrade?permission=projects.max");
-  expect(screen.getByRole("link", { name: "Export CSV" })).toHaveAttribute(
-    "href",
-    "/dashboard/upgrade?permission=projects.export",
-  );
+  expect(
+    screen.getByRole("button", { name: "Export CSV" }).closest("[inert]"),
+  ).not.toBeNull();
+  expect(screen.getByText("Pro")).toBeInTheDocument();
   expect(screen.getByText("Launch site")).toBeInTheDocument();
 });
 

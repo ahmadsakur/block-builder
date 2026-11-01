@@ -67,16 +67,16 @@ test("a failed plan check offers Try again", async () => {
   expect(await screen.findByText("Secret report")).toBeInTheDocument();
 });
 
-test("the nav badge shows a lock only when the permission is locked", async () => {
+test("the nav badge shows Pro only when the permission is locked", async () => {
   entitlements.mockResolvedValue(demoEntitlements("free", 0));
   const { unmount } = renderWithClient(
     <NavLockBadge permission="analytics.view" />,
   );
-  expect(await screen.findByText("Not in your plan")).toBeInTheDocument();
+  expect(await screen.findByText("Pro")).toBeInTheDocument();
   unmount();
 
   entitlements.mockResolvedValue(demoEntitlements("pro", 0));
   renderWithClient(<NavLockBadge permission="analytics.view" />);
   await vi.waitFor(() => expect(entitlements).toHaveBeenCalledTimes(2));
-  expect(screen.queryByText("Not in your plan")).not.toBeInTheDocument();
+  expect(screen.queryByText("Pro")).not.toBeInTheDocument();
 });
