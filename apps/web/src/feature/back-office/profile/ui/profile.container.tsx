@@ -3,11 +3,11 @@
 import { CloudAlertIcon, LogInIcon, RotateCwIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
 import { useState, useSyncExternalStore } from "react";
 import { toast } from "sonner";
 import EmptyState from "@/components/_common/empty-state";
 import { Button, buttonVariants } from "@/components/_ui/button";
+import { useThemeTransition } from "@/hooks/use-theme-transition";
 import { useSessionQuery } from "@/lib/auth/session-query";
 import { avatarFileError } from "../logic/profile.logic";
 import {
@@ -51,7 +51,7 @@ export default function ProfileContainer() {
   const deleteAccount = useDeleteAccount();
   const uploadAvatar = useUploadAvatar();
   const removeAvatar = useRemoveAvatar();
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useThemeTransition();
   const mounted = useMounted();
   const [profileFormKey, setProfileFormKey] = useState(0);
   const [passwordFormKey, setPasswordFormKey] = useState(0);
@@ -130,6 +130,7 @@ export default function ProfileContainer() {
           avatar={
             <AvatarPicker
               name={user.name}
+              seed={user.id}
               avatarUrl={user.avatarUrl}
               uploading={uploadAvatar.isPending}
               removing={removeAvatar.isPending}

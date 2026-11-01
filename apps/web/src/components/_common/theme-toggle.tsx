@@ -1,11 +1,11 @@
 "use client";
 
 import { MoonIcon, SunIcon } from "lucide-react";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/_ui/button";
+import { useThemeTransition } from "@/hooks/use-theme-transition";
 
 export default function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useThemeTransition();
 
   return (
     <Button

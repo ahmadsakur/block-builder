@@ -1,4 +1,5 @@
 import { PersonAvatar } from "@/components/dashboardblocks/team";
+import { avatarFor } from "@/lib/avatar";
 import { pluralize } from "../../../../_shared/logic/plans.logic";
 import type { PlanRow } from "../../../../_shared/types/plans.types";
 import { othersLabel } from "../../../logic/plan-list.logic";
@@ -19,7 +20,7 @@ export default function MemberFaces({ plan }: { plan: PlanRow }) {
         <li key={face.id} className="flex" title={face.name}>
           <PersonAvatar
             className="ring-background ring-2"
-            person={{ avatar: face.avatarUrl, name: face.name }}
+            person={{ avatar: avatarFor(face), name: face.name }}
           />
           <span className="sr-only">{face.name}</span>
         </li>

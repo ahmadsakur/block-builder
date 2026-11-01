@@ -3,12 +3,14 @@
 import { Loader2Icon, PencilIcon, XIcon } from "lucide-react";
 import { type ChangeEvent, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/_ui/avatar";
+import { fallbackAvatar } from "@/lib/avatar";
 import { cn } from "@/lib/utils";
 import { initials } from "../../logic/profile.logic";
 import { AVATAR_TYPES } from "../../types/profile.types";
 
 type AvatarPickerProps = {
   name: string;
+  seed?: string;
   avatarUrl?: string;
   uploading: boolean;
   removing: boolean;
@@ -18,6 +20,7 @@ type AvatarPickerProps = {
 
 export default function AvatarPicker({
   name,
+  seed,
   avatarUrl,
   uploading,
   removing,
@@ -48,7 +51,9 @@ export default function AvatarPicker({
         className="group focus-visible:ring-ring/50 relative block rounded-full outline-none focus-visible:ring-3 disabled:cursor-progress"
       >
         <Avatar className="size-14 text-lg">
-          {shown && <AvatarImage src={shown} alt="" />}
+          {(shown || seed) && (
+            <AvatarImage src={shown || fallbackAvatar(seed ?? name)} alt="" />
+          )}
           <AvatarFallback>{initials(name)}</AvatarFallback>
         </Avatar>
         <span

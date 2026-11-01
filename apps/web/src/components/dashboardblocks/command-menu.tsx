@@ -72,6 +72,7 @@ function useCommandMenuShortcut(onOpen: () => void, key = "k") {
 }
 
 interface CommandMenuProps {
+  className?: string;
   /** Defaults to a sentence that quotes the search text. */
   emptyMessage?: string;
   groups: CommandMenuGroup[];
@@ -91,6 +92,7 @@ interface CommandMenuProps {
 }
 
 function CommandMenu({
+  className,
   emptyMessage,
   groups,
   loading = false,
@@ -124,6 +126,7 @@ function CommandMenu({
 
   return (
     <CommandDialog
+      className={className}
       open={open}
       onOpenChange={changeOpen}
       title={title}
